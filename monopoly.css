@@ -1,0 +1,81 @@
+
+/*http://www.w3schools.com/cssref/css_colors.asp*/
+#setup_game{
+  display:block;
+  text-align: center;
+  width: 600px;
+  margin:auto;
+  border: gray solid 2px;
+  padding: 20px;
+}
+
+#setup_game #add_player{
+  display:block;
+  background: black;
+  background: #99FF66;
+  color: black;
+  width:100px;
+  height: 20px;
+  text-align: center;
+  margin:auto;
+  border: gray dotted 1px;
+
+}
+
+#start_game{
+  display:block;
+  background: #66CCFF;
+  color: black;
+  width:100px;
+  height: 20px;
+  text-align: center;
+  margin:auto;
+  border: gray dotted 2px;
+  margin-top: 20px;
+}
+
+#game_panel{
+  border: gray solid 2px;
+  width:1000px;
+  display: none;
+  margin:auto;
+  overflow: auto;
+}
+
+#left_pane{
+  display: none;
+  float:left;
+
+}
+
+#board{
+  background-image: URL("images/monopoly_board.jpg");
+  width:640px;
+  height: 640px;
+  margin:auto;
+  display: none;
+
+}
+
+#right_pane{
+  display: block;
+  display: none;
+  float: left;
+  width: 352px;
+}
+
+#dice{
+  display: block;
+  /*background-image: URL("images/dice.jpg");*/
+  border-bottom: gray solid 1px;
+  width: 100%;
+  height: 150px;
+  margin: auto;
+}
+#dice img{
+  display: block;
+  margin: auto;
+}
+
+
+
