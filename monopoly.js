@@ -1,32 +1,30 @@
-$('#add_player').click(function(){
-  game.number_of_players = game.number_of_players + 1;
-  $('#setup_game form').append("Player" + game.number_of_players + "'s Name: <input type='text' name='player" + game.number_of_players + "name'><br>");
-  if (game.number_of_players == 8){
-    $('#add_player').hide();
-  };
-});
+function addListeners(){
 
+  var startGame = document.getElementById("start_game");
+  startGame.addEventListener("click", function(){
+    document.getElementById("setup_game").style.display = 'none';
+    document.getElementById("start_game").style.display = 'none';
+    document.getElementById("game_panel").style.display = 'block';
+    document.getElementById("left_pane").style.display = 'block';
+    document.getElementById("right_pane").style.display = 'block';
+    document.getElementById("board").style.display = 'block';
+    document.getElementById("dice").style.display = 'block';
+  });
 
-$('#start_game').click(function(){
-  $("#setup_game").hide();
-  $('#start_game').hide();
-  $('#game_panel').show();
-  $('#left_pane').show();
-  $('#right_pane').show();
-  $('#board').show();
-  $('#dice').show();
-});
+  var dice = document.getElementById("dice");
+  dice.addEventListener("click", function(){
+    alert('Roll Dice!')
+  });
 
-$('#dice').click(function(){
-  alert('Roll Dice!')
-});
-
-
-function skip_user_input(){
-  $('#start_game').click();
 };
 
-
+document.getElementById('add_player').addEventListener("click", function(){
+  game.number_of_players = game.number_of_players + 1;
+  document.getElementById('player_entry_form').innerHTML += "Player" + game.number_of_players + "'s Name: <input type='text' name='player" + game.number_of_players + "name'><br>";
+  if (game.number_of_players == 8){
+    document.getElementById('add_player').style.visibility = 'hidden';
+  };
+});
 
 function Player(name){
    // Add object properties like this
@@ -49,7 +47,9 @@ function Game(){
 
 function RunGame(){
   game = new Game()
+  addListeners()
 };
 
-//skip_user_input();
 RunGame();
+
+
