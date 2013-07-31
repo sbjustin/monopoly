@@ -1,37 +1,45 @@
 
 var monopoly = {
 
-  number_of_players: 2,
+  numberOfPlayers: 2,
+  setupGame:       document.getElementById("setup_game"),
+  startGame:       document.getElementById("start_game"),
+  gamePanel:       document.getElementById("game_panel"),
+  leftPane:        document.getElementById("left_pane"),
+  rightPane:       document.getElementById("right_pane"),
+  board:           document.getElementById("board"),
+  dice:            document.getElementById("dice"),
+  addPlayer:       document.getElementById('add_player'),
+  playerEntryForm: document.getElementById('player_entry_form'),
 
   init: function(){
-    var startGame = document.getElementById("start_game");
-    startGame.addEventListener("click", function(){
-      document.getElementById("setup_game").style.display = 'none';
-      document.getElementById("start_game").style.display = 'none';
-      document.getElementById("game_panel").style.display = 'block';
-      document.getElementById("left_pane").style.display = 'block';
-      document.getElementById("right_pane").style.display = 'block';
-      document.getElementById("board").style.display = 'block';
-      document.getElementById("dice").style.display = 'block';
+    var me = this;
+
+    me.startGame.addEventListener("click", function(){
+      me.setupGame.style.display = 'none';
+      me.startGame.style.display = 'none';
+      me.gamePanel.style.display = 'block';
+      me.leftPane.style.display = 'block';
+      me.rightPane.style.display = 'block';
+      me.board.style.display = 'block';
+      me.dice.style.display = 'block';
     });
 
-    var dice = document.getElementById("dice");
-    dice.addEventListener("click", function(){
-      alert('Roll Dice!')
+    this.dice.addEventListener("click", function(){
+      alert('Roll Dice!');
     });
 
-    document.getElementById('add_player').addEventListener("click", function(){
-      monopoly.number_of_players = monopoly.number_of_players + 1;
-      document.getElementById('player_entry_form').innerHTML += "Player" + monopoly.number_of_players + "'s Name: <input type='text' name='player" + monopoly.number_of_players + "name'><br>";
-      if (monopoly.number_of_players == 8){
-        document.getElementById('add_player').style.visibility = 'hidden';
+    this.addPlayer.addEventListener("click", function(){
+      me.numberOfPlayers = me.numberOfPlayers + 1;
+      me.playerEntryForm.innerHTML += "Player" + me.numberOfPlayers + "'s Name: <input type='text' name='player" + me.numberOfPlayers + "name'><br>";
+      if (me.numberOfPlayers == 8){
+        me.addPlayer.style.visibility = 'hidden';
       };
     });
   },
 
-  startGame: function(){
+  start: function(){
     this.init();
-    //alert("get it on");
   }, 
 
   Player: function(){
@@ -49,4 +57,4 @@ var monopoly = {
 
   };
 
-  monopoly.startGame();
+  monopoly.start();
