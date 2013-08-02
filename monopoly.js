@@ -139,6 +139,7 @@ var monopoly = {
     //Changeable
     this.owner = undefined;
     this.status = 'available';
+    this.numberOfHouses = 0;
 
   },
 
