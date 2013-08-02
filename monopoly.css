@@ -58,7 +58,6 @@
 }
 
 #right_pane{
-  display: block;
   display: none;
   float: left;
   width: 352px;
@@ -72,10 +71,22 @@
   height: 150px;
   margin: auto;
 }
+
 #dice img{
   display: block;
   margin: auto;
 }
+
+#player_entry_form li {
+  list-style-type: none;
+}
+
+#output_log li {
+  list-style-type: none;
+
+}
+
+
 
 
 

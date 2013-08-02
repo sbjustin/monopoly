@@ -6,8 +6,10 @@
 
 <div id = 'setup_game'>
   <form id = 'player_entry_form'>
-    Player1's Name: <input type="text" name="playername"><br>
-    Player2's Name: <input type="text" name="playername"><br>
+    <ul id = 'player_entry_form_list'>
+      <li>Player1's Name: <input type="text" name="playername" class = 'player_entry_form_field'></li>
+      <li>Player2's Name: <input type="text" name="playername" class = 'player_entry_form_field'></li>
+    </ul>
   </form>
   <div id='add_player'>[+]Add Player</div>
 
@@ -23,6 +25,9 @@
   </div>
   <div id = 'right_pane'>
     <div id = 'dice'><img src = 'images/dice.jpg'></div>
+    <ul id = 'output_log'><li></li></ul>
+    <a href='#' id = 'next_turn_button'>Next Turn</a>
+    <a href='#' id = 'end_game_button'>End Game</a>
   </div>
 </div>
 
