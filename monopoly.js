@@ -3,9 +3,11 @@ var monopoly = {
 
   numberOfPlayers: 2,
   startingMoney: 1500,
-  phase: 'playing', //diceroll
+  phase: 'playing', //diceRoll: 0?
+  playersTurn: 0,
   gameOver: false,
   playersArray: [],
+  properties: [],
   setupGame:              document.getElementById("setup_game"),
   startGame:              document.getElementById("start_game"),
   gamePanel:              document.getElementById("game_panel"),
@@ -23,6 +25,8 @@ var monopoly = {
 
   init: function(){
     var me = this;
+
+    me.defProperties();
 
     me.startGame.addEventListener("click", function(){
       me.setupGame.style.display = 'none';
@@ -60,29 +64,43 @@ var monopoly = {
   }, 
 
   playGame: function(){
-    //while (monopoly.gameOver != true){
-      for (var i = 0; i < monopoly.numberOfPlayers; i++){
-        monopoly.writeToOutputLog(monopoly.playersArray[i].name + ", it's your turn"); 
-        monopoly.phase = 'diceroll';
-        monopoly.allowRollDice();
-        //monopoly.phase = 'move';
-      }
-      
-      // check - is there a winner?
-      monopoly.gameOver = true;
-      monopoly.writeToOutputLog('Game Over');
-    //};
+    monopoly.writeToOutputLog(monopoly.playersArray[monopoly.playersTurn].name + ", it's your turn"); 
+    monopoly.phase = 'diceRoll'
+    monopoly.rollDice();
   },
 
-  allowRollDice: function(){
+  rollDice: function(){
       this.dice.addEventListener("click", function(){
-        if (monopoly.phase == 'diceroll'){
+        if (monopoly.phase == 'diceRoll'){
           var diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-          monopoly.writeToOutputLog('You rolled a ' + Math.floor(Math.random() * (12 - 2 + 1) + 2) + '!');
-          monopoly.phase == 'complete';
+          monopoly.writeToOutputLog('You rolled a ' + diceRoll + '!');
+          monopoly.phase = 'movePiece';
+          monopoly.movePiece(diceRoll);
+        }else{
+          monopoly.writeToOutputLog('You cannot roll, you are in the ' + monopoly.phase + ' phase.');
         };
       });
   },
+
+  movePiece: function(spaces){
+    monopoly.playersArray[monopoly.playersTurn].position += spaces;
+    monopoly.writeToOutputLog("Player " + monopoly.playersArray[monopoly.playersTurn].name + " moved to " + monopoly.playersArray[monopoly.playersTurn].position + ".");
+    monopoly.phase = "onProperty";
+    monopoly.onProperty();
+  },
+
+  onProperty: function(){
+    if (monopoly.properties[monopoly.playersArray[monopoly.playersTurn].position].status == 'available'){
+      monopoly.writeToOutputLog("Property is available");
+      //output buttons for purchasing
+    }else if (monopoly.properties[monopoly.playersArray[monopoly.playersTurn].position].status == 'owned'){
+      monopoly.writeToOutputLog("Property is owned");
+    }else if (monopoly.properties[monopoly.playersArray[monopoly.playersTurn].position].status == 'mortgaged'){
+      monopoly.writeToOutputLog("Property is mortgaged");
+    }else{
+      monopoly.writeToOutputLog("Property is all jacked up" );
+    };
+  }, 
 
   setupPlayers: function(){ 
     monopoly.writeToOutputLog(this.numberOfPlayers + " players are joining");
@@ -108,10 +126,27 @@ var monopoly = {
     this.position = 0; //Position on board 0 -> 39
   },
 
-  Property: function(){
+  Property: function(name, cost){
     this.name = name;
-    this.cost = monopoly.startingMoney;
-    this.owner = '';
+    this.cost = cost;
+    this.owner = undefined;
+    this.status = 'available';
+  },
+
+  defProperties: function(){
+    monopoly.properties[0] = new this.Property("Baltic Ave", 100);
+    monopoly.properties[1] = new this.Property("Med Ave", 100);
+    monopoly.properties[2] = new this.Property("Med Ave", 100);
+    monopoly.properties[3] = new this.Property("Med Ave", 100);
+    monopoly.properties[4] = new this.Property("Med Ave", 100);
+    monopoly.properties[5] = new this.Property("Med Ave", 100);
+    monopoly.properties[6] = new this.Property("Med Ave", 100);
+    monopoly.properties[7] = new this.Property("Med Ave", 100);
+    monopoly.properties[8] = new this.Property("Med Ave", 100);
+    monopoly.properties[9] = new this.Property("Med Ave", 100);
+    monopoly.properties[10] = new this.Property("Med Ave", 100);
+    monopoly.properties[11] = new this.Property("Med Ave", 100);
+    monopoly.properties[12] = new this.Property("Med Ave", 100);
   }
 
 
