@@ -8,6 +8,7 @@ var monopoly = {
   gameOver: false,
   playersArray: [],
   properties: [],
+  pieces: [],
   setupGame:              document.getElementById("setup_game"),
   startGame:              document.getElementById("start_game"),
   gamePanel:              document.getElementById("game_panel"),
@@ -24,14 +25,35 @@ var monopoly = {
   endGameButton:          document.getElementById("end_game_button"),
   buyPropertyButton:      document.getElementById("buy_property_button"),
   skipPropertyButton:     document.getElementById("skip_property_button"),
+  shipPiece:              document.getElementById("ship_piece"),
+  dogPiece:               document.getElementById("dog_piece"),
+
+
+  //listeners
+  buyPropertyListener: function(){
+      monopoly.properties[monopoly.currentPlayer().position].status = 'owned';
+      monopoly.properties[monopoly.currentPlayer().position].owner = monopoly.playersTurn;
+      monopoly.currentPlayer().cash -= monopoly.properties[monopoly.currentPlayer().position].cost;
+      monopoly.writeToOutputLog(monopoly.currentPlayer().name + " now has " + monopoly.currentPlayer().cash + "dollars.");
+      monopoly.removePropertyListeners();
+      monopoly.nextPlayer();
+    },
+
+  skipPropertyListener: function(){
+    monopoly.removePropertyListeners();
+    monopoly.nextPlayer();
+  },
 
   init: function(){
     var me = this;
 
+    //remove this stuff for real game
     this.playerEntries[0].value = "Justin";
     this.playerEntries[1].value = "Cat"
+    ////////////////////////////////////////////
 
     me.defProperties();
+    me.defPieces();
 
     me.startGame.addEventListener("click", function(){
       me.setupGame.style.display = 'none';
@@ -46,7 +68,9 @@ var monopoly = {
 
       me.playGame();
     });
-
+    //remove this stuff for real game
+    monopoly.startGame.click();
+    ////////////////////////////////////////////    
     me.endGameButton.addEventListener("click", function(){
       me.gameOver = true;
     });
@@ -97,6 +121,7 @@ var monopoly = {
     else{
       monopoly.currentPlayer().position += spaces;
     };
+    monopoly.pieces[monopoly.playersTurn].setPosition(monopoly.properties[monopoly.currentPlayer().position]);
     monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.currentPlayer().position + ".");
     monopoly.phase = "onProperty";
     monopoly.onProperty();
@@ -118,35 +143,22 @@ var monopoly = {
   addPropertyListeners: function(){
     monopoly.buyPropertyButton.style.display = 'block';
     monopoly.skipPropertyButton.style.display = 'block';
-
-    var buyPropertyListener = function(){
-      monopoly.properties[monopoly.currentPlayer().position].status = 'owned';
-      monopoly.properties[monopoly.currentPlayer().position].owner = monopoly.playersTurn;
-      monopoly.currentPlayer().cash -= monopoly.properties[monopoly.currentPlayer().position].cost;
-      monopoly.writeToOutputLog(monopoly.currentPlayer().name + " now has " + monopoly.currentPlayer().cash + "dollars.");
-      monopoly.removePropertyListeners();
-      monopoly.nextPlayer();
-    };
-
-    var skipPropertyListener = function(){
-      monopoly.nextPlayer();
-    };
-
-    monopoly.buyPropertyButton.addEventListener("click", buyPropertyListener);
-    monopoly.skipPropertyButton.addEventListener("click", skipPropertyListener);
+    monopoly.buyPropertyButton.addEventListener("click", monopoly.buyPropertyListener);
+    monopoly.skipPropertyButton.addEventListener("click", monopoly.skipPropertyListener);
   },
 
   removePropertyListeners: function(){
     monopoly.buyPropertyButton.style.display = 'none';
     monopoly.skipPropertyButton.style.display = 'none';
-    monopoly.buyPropertyButton.removeEventListener("click", buyPropertyListener);
-    monopoly.skipPropertyButton.removeEventListener("click", skipPropertyListener);  
+    monopoly.buyPropertyButton.removeEventListener("click", monopoly.buyPropertyListener);
+    monopoly.skipPropertyButton.removeEventListener("click", monopoly.skipPropertyListener);  
   },
 
   setupPlayers: function(){ 
     monopoly.writeToOutputLog(this.numberOfPlayers + " players are joining");
     for (var i = 0; i < this.numberOfPlayers; ++i) {
       this.playersArray[i] = new this.Player(this.playerEntries[i].value);  
+      this.playersArray[i].piece = monopoly.pieces[i];
       monopoly.writeToOutputLog("Player " + this.playersArray[i].name + " has joined the game.");
     };
     
@@ -177,7 +189,8 @@ var monopoly = {
     this.position = 0; //Position on board 0 -> 39
   },
 
-  Property: function(name, cost, rent, group){
+  Property: function(name, cost, rent, group, x, y){
+    //Pixels to top left corner from left to right   0 90 142 192  242  296 348  400 452 504 554
     //unchanging
     this.name = name;
     this.cost = cost;
@@ -187,6 +200,29 @@ var monopoly = {
     this.owner = undefined;
     this.status = 'available';
     this.numberOfHouses = 0;
+    this.piecePosition = [x,y];
+  },
+
+  Piece: function(name, css_id){
+    this.name = name;
+    this.css_id = css_id;
+    this.setPosition = function(property){
+      // set x and y position of property
+      if (css_id == "dog_piece"){
+        monopoly.dogPiece.style.left = property.piecePosition[0];
+        monopoly.dogPiece.style.top = property.piecePosition[1];
+      }
+      else if (css_id == "ship_piece"){
+        monopoly.shipPiece.style.left = property.piecePosition[0];
+        monopoly.shipPiece.style.top = property.piecePosition[1];
+      };
+    };  
+    this.setPosition(monopoly.properties[0]);
+  },
+
+  defPieces: function(){
+    monopoly.pieces[0] = new this.Piece("Doggy", "dog_piece");
+    monopoly.pieces[1] = new this.Piece("Ship", "ship_piece");
 
   },
 
@@ -233,6 +269,22 @@ var monopoly = {
     monopoly.properties[15] = new this.Property("Pennsylvania Railroad",200 , -2,"Railroad");
     monopoly.properties[25] = new this.Property("B. & O. Railroad",200 , -2,"Railroad");
     monopoly.properties[35] = new this.Property("Short Line Railroad",200 , -2,"Railroad");
+
+    var positions = [0,90,142,192,242,296,348,400,452,504,554];
+    for (var i = 0; i < monopoly.properties.length; i++) {
+      if (i <= 10){
+        monopoly.properties[10-i].piecePosition = [positions[i],554];
+      }
+      else if(i > 10 && i <= 20){
+        monopoly.properties[30-i].piecePosition = [0,positions[i-10]];
+      }
+      else if(i > 20 && i <= 30){
+        monopoly.properties[i].piecePosition = [positions[i-20],0]; 
+      }
+      else{
+        monopoly.properties[i].piecePosition = [554,positions[i-30]];
+      };
+    };
   }
 
 
