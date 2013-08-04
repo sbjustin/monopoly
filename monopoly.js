@@ -22,9 +22,14 @@ var monopoly = {
   outputLog:              document.getElementById("output_log"),
   nextTurnButton:         document.getElementById("next_turn_button"),
   endGameButton:          document.getElementById("end_game_button"),
+  buyPropertyButton:      document.getElementById("buy_property_button"),
+  skipPropertyButton:     document.getElementById("skip_property_button"),
 
   init: function(){
     var me = this;
+
+    this.playerEntries[0].value = "Justin";
+    this.playerEntries[1].value = "Cat"
 
     me.defProperties();
 
@@ -68,26 +73,30 @@ var monopoly = {
   },
 
   playGame: function(){
-    monopoly.writeToOutputLog(monopoly.currentPlayer().name + ", it's your turn"); 
-    monopoly.phase = 'diceRoll'
-    monopoly.rollDice();
+    this.writeToOutputLog(monopoly.currentPlayer().name + ", it's your turn"); 
+    this.phase = 'diceRoll'
+    this.rollDice();
   },
 
   rollDice: function(){
-      this.dice.addEventListener("click", function(){
-        if (monopoly.phase == 'diceRoll'){
+    var diceListener = function(){
           var diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
           monopoly.writeToOutputLog('You rolled a ' + diceRoll + '!');
           monopoly.phase = 'movePiece';
           monopoly.movePiece(diceRoll);
-        }else{
-          monopoly.writeToOutputLog('You cannot roll, you are in the ' + monopoly.phase + ' phase.');
-        };
-      });
+          monopoly.dice.removeEventListener('click', diceListener);  
+      };
+      this.dice.addEventListener("click", diceListener);
+          
   },
 
   movePiece: function(spaces){
-    monopoly.currentPlayer().position += spaces;
+    if (monopoly.currentPlayer().position + spaces > 39 ){
+      monopoly.currentPlayer().position = spaces - (40 - monopoly.currentPlayer().position);
+    }
+    else{
+      monopoly.currentPlayer().position += spaces;
+    };
     monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.currentPlayer().position + ".");
     monopoly.phase = "onProperty";
     monopoly.onProperty();
@@ -96,7 +105,7 @@ var monopoly = {
   onProperty: function(){
     if (monopoly.properties[monopoly.currentPlayer().position].status == 'available'){
       monopoly.writeToOutputLog("Property is available");
-      //output buttons for purchasing
+      monopoly.addPropertyListeners();
     }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'owned'){
       monopoly.writeToOutputLog("Property is owned");
     }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'mortgaged'){
@@ -106,6 +115,34 @@ var monopoly = {
     };
   }, 
 
+  addPropertyListeners: function(){
+    monopoly.buyPropertyButton.style.display = 'block';
+    monopoly.skipPropertyButton.style.display = 'block';
+
+    var buyPropertyListener = function(){
+      monopoly.properties[monopoly.currentPlayer().position].status = 'owned';
+      monopoly.properties[monopoly.currentPlayer().position].owner = monopoly.playersTurn;
+      monopoly.currentPlayer().cash -= monopoly.properties[monopoly.currentPlayer().position].cost;
+      monopoly.writeToOutputLog(monopoly.currentPlayer().name + " now has " + monopoly.currentPlayer().cash + "dollars.");
+      monopoly.removePropertyListeners();
+      monopoly.nextPlayer();
+    };
+
+    var skipPropertyListener = function(){
+      monopoly.nextPlayer();
+    };
+
+    monopoly.buyPropertyButton.addEventListener("click", buyPropertyListener);
+    monopoly.skipPropertyButton.addEventListener("click", skipPropertyListener);
+  },
+
+  removePropertyListeners: function(){
+    monopoly.buyPropertyButton.style.display = 'none';
+    monopoly.skipPropertyButton.style.display = 'none';
+    monopoly.buyPropertyButton.removeEventListener("click", buyPropertyListener);
+    monopoly.skipPropertyButton.removeEventListener("click", skipPropertyListener);  
+  },
+
   setupPlayers: function(){ 
     monopoly.writeToOutputLog(this.numberOfPlayers + " players are joining");
     for (var i = 0; i < this.numberOfPlayers; ++i) {
@@ -113,6 +150,16 @@ var monopoly = {
       monopoly.writeToOutputLog("Player " + this.playersArray[i].name + " has joined the game.");
     };
     
+  },
+
+  nextPlayer: function(){
+    if (monopoly.numberOfPlayers - 1 == monopoly.playersTurn){
+      monopoly.playersTurn = 0;
+    }else{
+      monopoly.playersTurn += 1;
+    };
+    monopoly.writeToOutputLog(monopoly.currentPlayer().name + ", it's your turn"); 
+    monopoly.rollDice();
   },
 
   writeToOutputLog: function(notice){
