@@ -17,7 +17,6 @@ var monopoly = {
   board:                  document.getElementById("board"),
   dice:                   document.getElementById("dice"),
   addPlayer:              document.getElementById("add_player"),
-  //playerEntryForm:        document.getElementById('player_entry_form'),
   playerEntryFormList:    document.getElementById("player_entry_form_list"),
   playerEntries:          document.getElementsByName("playername"),
   outputLog:              document.getElementById("output_log"),
@@ -25,10 +24,15 @@ var monopoly = {
   endGameButton:          document.getElementById("end_game_button"),
   buyPropertyButton:      document.getElementById("buy_property_button"),
   skipPropertyButton:     document.getElementById("skip_property_button"),
-  shipPiece:              document.getElementById("ship_piece"),
-  dogPiece:               document.getElementById("dog_piece"),
+  // shipPiece:              document.getElementById("ship_piece"),
+  // dogPiece:               document.getElementById("dog_piece"),
+  propertyPieceBoxes:     document.getElementsByClassName("pieces_box"),
 
-
+  // propertyPieceBox: function(box){
+  //   if(box <= 10){
+  //     return propertyPieceBoxes[40 - (30 + box)]
+  //   };
+  // },
   //listeners
   buyPropertyListener: function(){
       monopoly.properties[monopoly.currentPlayer().position].status = 'owned';
@@ -54,6 +58,7 @@ var monopoly = {
 
     me.defProperties();
     me.defPieces();
+    me.reorderPropertyPieceBoxes();
 
     me.startGame.addEventListener("click", function(){
       me.setupGame.style.display = 'none';
@@ -115,13 +120,19 @@ var monopoly = {
   },
 
   movePiece: function(spaces){
+    //monopoly.propertyPieceBoxes[0].innerHTML = monopoly.pieces[0].htmlCode
+    //remove piece
+    monopoly.propertyPieceBoxes[monopoly.properties[monopoly.currentPlayer().position].piecePosition].innerHTML = monopoly.propertyPieceBoxes[monopoly.currentPlayer().position].innerHTML.replace(monopoly.pieces[monopoly.currentPlayer().piece].htmlCode,"");
+    
     if (monopoly.currentPlayer().position + spaces > 39 ){
       monopoly.currentPlayer().position = spaces - (40 - monopoly.currentPlayer().position);
     }
     else{
       monopoly.currentPlayer().position += spaces;
     };
-    monopoly.pieces[monopoly.playersTurn].setPosition(monopoly.properties[monopoly.currentPlayer().position]);
+    
+    monopoly.propertyPieceBoxes[monopoly.properties[monopoly.currentPlayer().position].piecePosition].innerHTML = monopoly.propertyPieceBoxes[monopoly.currentPlayer().position].innerHTML + monopoly.pieces[monopoly.currentPlayer().piece].htmlCode;
+    //monopoly.pieces[monopoly.playersTurn].setPosition(monopoly.properties[monopoly.currentPlayer().position]);
     monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.currentPlayer().position + ".");
     monopoly.phase = "onProperty";
     monopoly.onProperty();
@@ -157,8 +168,7 @@ var monopoly = {
   setupPlayers: function(){ 
     monopoly.writeToOutputLog(this.numberOfPlayers + " players are joining");
     for (var i = 0; i < this.numberOfPlayers; ++i) {
-      this.playersArray[i] = new this.Player(this.playerEntries[i].value);  
-      this.playersArray[i].piece = monopoly.pieces[i];
+      this.playersArray[i] = new this.Player(this.playerEntries[i].value, i);  
       monopoly.writeToOutputLog("Player " + this.playersArray[i].name + " has joined the game.");
     };
     
@@ -183,13 +193,14 @@ var monopoly = {
     };
   },
 
-  Player: function(name){
+  Player: function(name, piece){
     this.name = name;
     this.cash = monopoly.startingMoney;
+    this.piece = piece;
     this.position = 0; //Position on board 0 -> 39
   },
 
-  Property: function(name, cost, rent, group, x, y){
+  Property: function(name, cost, rent, group, position){
     //Pixels to top left corner from left to right   0 90 142 192  242  296 348  400 452 504 554
     //unchanging
     this.name = name;
@@ -200,12 +211,13 @@ var monopoly = {
     this.owner = undefined;
     this.status = 'available';
     this.numberOfHouses = 0;
-    this.piecePosition = [x,y];
+    this.piecePosition = position;
   },
 
-  Piece: function(name, css_id){
+  Piece: function(name, css_id, htmlCode){
     this.name = name;
     this.css_id = css_id;
+    this.htmlCode = htmlCode;
     this.setPosition = function(property){
       // set x and y position of property
       if (css_id == "dog_piece"){
@@ -221,70 +233,68 @@ var monopoly = {
   },
 
   defPieces: function(){
-    monopoly.pieces[0] = new this.Piece("Doggy", "dog_piece");
-    monopoly.pieces[1] = new this.Piece("Ship", "ship_piece");
+    monopoly.pieces[0] = new this.Piece("Doggy", "dog_piece", "<img src = 'images/dog_piece.png' class = 'monopoly_piece 'id = 'dog_piece'/>");
+    monopoly.pieces[1] = new this.Piece("Ship", "ship_piece", "<img src = 'images/ship_piece.png' class = 'monopoly_piece'  id = 'ship_piece'/>");
+
+        
 
   },
 
   defProperties: function(){
-    monopoly.properties[0] = new this.Property("Go",0, 0 ,"non-property");
-    monopoly.properties[1] = new this.Property("Mediterranean Ave.",60, 2 ,"Purple");
-    monopoly.properties[2] = new this.Property("Other",0, 0 ,"non-property");
-    monopoly.properties[3] = new this.Property("Baltic Ave.",60, 4 ,"Purple");
-    monopoly.properties[4] = new this.Property("Other",0, 0 ,"non-property");
-    monopoly.properties[6] = new this.Property("Oriental Ave.",100 , 6 ,"Light-Green");
-    monopoly.properties[7] = new this.Property("Other",0, 0 ,"non-property");
-    monopoly.properties[8] = new this.Property("Vermont Ave.",100 , 6 ,"Light-Green");
-    monopoly.properties[9] = new this.Property("Connecticut Ave.",120 , 8 ,"Light-Green");
-    monopoly.properties[10] = new this.Property("Jail",0, 0 ,"non-property");
-    monopoly.properties[11] = new this.Property("St. Charles Place",140 , 10,"Violet");
-    monopoly.properties[13] = new this.Property("States Ave.",140 , 10,"Violet");
-    monopoly.properties[14] = new this.Property("Virginia Ave.",160 , 12,"Violet");
-    monopoly.properties[16] = new this.Property("St. James Place",180 , 14,"Orange");
-    monopoly.properties[17] = new this.Property("Other",0, 0 ,"non-property");
-    monopoly.properties[18] = new this.Property("Tennessee Ave.",180 , 14,"Orange");
-    monopoly.properties[19] = new this.Property("New York Ave.",200 , 16,"Orange");
-    monopoly.properties[20] = new this.Property("Free Parking",0, 0 ,"non-property");
-    monopoly.properties[21] = new this.Property("Kentucky Ave.",220 , 18,"Red");
-    monopoly.properties[22] = new this.Property("Other",0, 0 ,"non-property");
-    monopoly.properties[23] = new this.Property("Indiana Ave.",220 , 18,"Red");
-    monopoly.properties[24] = new this.Property("Illinois Ave.",240 , 20,"Red");
-    monopoly.properties[26] = new this.Property("Atlantic Ave.",260 , 22,"Yellow");
-    monopoly.properties[27] = new this.Property("Ventnor Ave.",260 , 22,"Yellow");
-    monopoly.properties[29] = new this.Property("Marvin Gardens",280 , 22,"Yellow");
-    monopoly.properties[30] = new this.Property("Go to Jail",0, 0 ,"non-property");
-    monopoly.properties[31] = new this.Property("Pacific Ave.",300 , 26,"Dark-Green");
-    monopoly.properties[32] = new this.Property("North Carolina Ave.",300 , 26,"Dark-Green");
-    monopoly.properties[33] = new this.Property("Other",0, 0 ,"non-property");
-    monopoly.properties[34] = new this.Property("Pennsylvania Ave.",320 , 28,"Dark-Green");
-    monopoly.properties[36] = new this.Property("Other",0, 0 ,"non-property");
-    monopoly.properties[37] = new this.Property("Park Place",350 , 35,"Dark-Blue");
-    monopoly.properties[38] = new this.Property("Other",0, 0 ,"non-property");
-    monopoly.properties[39] = new this.Property("Boardwalk",400 , 50,"Dark-Blue");
+    monopoly.properties[0] = new this.Property("Go",0, 0 ,"non-property", 39);
+    monopoly.properties[1] = new this.Property("Mediterranean Ave.",60, 2 ,"Purple", 38);
+    monopoly.properties[2] = new this.Property("Other",0, 0 ,"non-property", 37);
+    monopoly.properties[3] = new this.Property("Baltic Ave.",60, 4 ,"Purple", 36);
+    monopoly.properties[4] = new this.Property("Other",0, 0 ,"non-property", 35);
+    //5
+    monopoly.properties[6] = new this.Property("Oriental Ave.",100 , 6 ,"Light-Green", 33);
+    monopoly.properties[7] = new this.Property("Other",0, 0 ,"non-property", 32);
+    monopoly.properties[8] = new this.Property("Vermont Ave.",100 , 6 ,"Light-Green", 31);
+    monopoly.properties[9] = new this.Property("Connecticut Ave.",120 , 8 ,"Light-Green", 30);
+    monopoly.properties[10] = new this.Property("Jail",0, 0 ,"non-property", 29);
+    monopoly.properties[11] = new this.Property("St. Charles Place",140 , 10,"Violet", 19);
+    //12
+    monopoly.properties[13] = new this.Property("States Ave.",140 , 10,"Violet", 17);
+    monopoly.properties[14] = new this.Property("Virginia Ave.",160 , 12,"Violet", 16);
+    //15
+    monopoly.properties[16] = new this.Property("St. James Place",180 , 14,"Orange", 14);
+    monopoly.properties[17] = new this.Property("Other",0, 0 ,"non-property", 13);
+    monopoly.properties[18] = new this.Property("Tennessee Ave.",180 , 14,"Orange", 12);
+    monopoly.properties[19] = new this.Property("New York Ave.",200 , 16,"Orange", 11);
+    monopoly.properties[20] = new this.Property("Free Parking",0, 0 ,"non-property", 0);
+    monopoly.properties[21] = new this.Property("Kentucky Ave.",220 , 18,"Red", 1);
+    monopoly.properties[22] = new this.Property("Other",0, 0 ,"non-property", 2);
+    monopoly.properties[23] = new this.Property("Indiana Ave.",220 , 18,"Red", 3);
+    monopoly.properties[24] = new this.Property("Illinois Ave.",240 , 20,"Red", 4);
+    //25
+    monopoly.properties[26] = new this.Property("Atlantic Ave.",260 , 22,"Yellow", 6);
+    monopoly.properties[27] = new this.Property("Ventnor Ave.",260 , 22,"Yellow", 7);
+    //28
+    monopoly.properties[29] = new this.Property("Marvin Gardens",280 , 22,"Yellow", 9);
+    monopoly.properties[30] = new this.Property("Go to Jail",0, 0 ,"non-property", 10);
+    monopoly.properties[31] = new this.Property("Pacific Ave.",300 , 26,"Dark-Green", 20);
+    monopoly.properties[32] = new this.Property("North Carolina Ave.",300 , 26,"Dark-Green", 21);
+    monopoly.properties[33] = new this.Property("Other",0, 0 ,"non-property", 22);
+    monopoly.properties[34] = new this.Property("Pennsylvania Ave.",320 , 28,"Dark-Green", 23);
+    //35
+    monopoly.properties[36] = new this.Property("Other",0, 0 ,"non-property", 25);
+    monopoly.properties[37] = new this.Property("Park Place",350 , 35,"Dark-Blue", 26);
+    monopoly.properties[38] = new this.Property("Other",0, 0 ,"non-property", 27);
+    monopoly.properties[39] = new this.Property("Boardwalk",400 , 50,"Dark-Blue", 28);
 
-    monopoly.properties[12] = new this.Property("Electric Company",150 , -1 ,"Utility");
-    monopoly.properties[28] = new this.Property("Water Works",150 , -1 ,"Utility");
+    monopoly.properties[12] = new this.Property("Electric Company",150 , -1 ,"Utility", 18);
+    monopoly.properties[28] = new this.Property("Water Works",150 , -1 ,"Utility", 8);
 
-    monopoly.properties[5] = new this.Property("Reading Railroad",200 , -2,"Railroad");
-    monopoly.properties[15] = new this.Property("Pennsylvania Railroad",200 , -2,"Railroad");
-    monopoly.properties[25] = new this.Property("B. & O. Railroad",200 , -2,"Railroad");
-    monopoly.properties[35] = new this.Property("Short Line Railroad",200 , -2,"Railroad");
+    monopoly.properties[5] = new this.Property("Reading Railroad",200 , -2,"Railroad", 34);
+    monopoly.properties[15] = new this.Property("Pennsylvania Railroad",200 , -2,"Railroad", 15);
+    monopoly.properties[25] = new this.Property("B. & O. Railroad",200 , -2,"Railroad", 5);
+    monopoly.properties[35] = new this.Property("Short Line Railroad",200 , -2,"Railroad", 24);
 
-    var positions = [0,90,142,192,242,296,348,400,452,504,554];
-    for (var i = 0; i < monopoly.properties.length; i++) {
-      if (i <= 10){
-        monopoly.properties[10-i].piecePosition = [positions[i],554];
-      }
-      else if(i > 10 && i <= 20){
-        monopoly.properties[30-i].piecePosition = [0,positions[i-10]];
-      }
-      else if(i > 20 && i <= 30){
-        monopoly.properties[i].piecePosition = [positions[i-20],0]; 
-      }
-      else{
-        monopoly.properties[i].piecePosition = [554,positions[i-30]];
-      };
-    };
+
+  }, 
+
+  reorderPropertyPieceBoxes: function(){
+
   }
 
 

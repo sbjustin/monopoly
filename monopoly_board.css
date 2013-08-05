@@ -105,6 +105,11 @@
   width: 25px;
   float: left;
 }
+/*
+.piece_box{
+  min-height: 20px;
+  min-width: 20px;
+}*/
 
 .left{
   float: left;
