@@ -1,0 +1,165 @@
+#board{
+  background-image: URL("images/monopoly_board.png");
+  width:640px;
+  height: 640px;
+  margin:auto;
+  display: none;
+  border-right: 3px solid black;
+
+}
+
+#top_row{
+  /*background-color: purple;
+  opacity: 0.4;*/
+  display: block;
+  float: left;
+  width:650px;
+  height: 90px;
+}
+
+#left_column{
+/*  background-color: yellow;
+  opacity: 0.2;*/
+
+  display: block;
+  float: left;
+  width: 90px;
+  height: 455px;
+  
+}
+
+.center_square{
+ /* background-color: black;
+  opacity: 0.4;*/
+  border: 2px solid black;
+  display:block;
+  float: left;
+  width: 456px;
+  height: 456px;
+  
+}
+
+#right_column{
+  /*background-color: purple;
+  opacity: 0.2;*/
+  
+  display: block;
+  float: left;
+  width: 90px;
+  height: 455px;
+  
+}
+
+#bottom_row{
+ /* background-color: purple;
+  opacity: 0.4;*/
+
+  display: block;
+  float: left;
+  width:650px;
+  height: 90px;
+}
+
+.square_property{
+  /*background-color: blue;
+  opacity: 0.4;*/
+  width: 90px;
+  height: 90px;
+}
+.border_top{border-top: 1px solid black;}
+.border_right{border-right: 1px solid black;}
+.border_bottom{border-bottom: 1px solid black;}
+.border_left{border-left: 1px solid black;}
+
+.vertical_rectangle_property{
+  /*background-color: green;
+  opacity: 0.4;*/
+  border-left: 1px solid black;
+  width: 50px;
+  height: 90px;
+
+}
+.horizontal_rectangle_property{
+  /*background-color: orange;
+  opacity: 0.4;*/
+  border-top: 1px solid black;
+  height: 50px;
+}
+
+.vertical_property_pieces_box{
+  width: 100%;
+  height: 65px;
+}
+.vertical_property_color_box{
+  width: 100%;
+  height: 25px;
+}
+
+.horizontal_property_pieces_box{
+  height: 100%;
+  width: 64px;
+  float: left;
+}
+.horizontal_property_color_box{
+  height: 100%;
+  width: 25px;
+  float: left;
+}
+
+.left{
+  float: left;
+}
+
+.right{
+  float: right;
+}
+
+
+
+.monopoly_piece{
+  position: relative;
+  display: block;
+  width: 30px;
+  height: 30px;
+}
+
+.purple{
+  background-color: purple;
+  border-bottom: 1px solid black;
+}
+
+.teal{
+  background-color: teal;
+  border-bottom: 1px solid black;
+}
+
+.yellow{
+  background-color: yellow;
+  border-top: 1px solid black;
+}
+
+.maroon{
+  background-color: maroon;
+  border-left: 1px solid black; 
+}
+
+.orange{
+  background-color: orange;
+  border-left: 1px solid black;  
+}
+
+.red{
+  background-color: red;
+  border-top: 1px solid black;  
+}
+
+.green{
+  background-color: green;
+  border-right: 1px solid black;  
+}
+
+.blue{
+  background-color: blue;
+  border-right: 1px solid black;  
+}
+

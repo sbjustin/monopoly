@@ -217,7 +217,7 @@ var monopoly = {
         monopoly.shipPiece.style.top = property.piecePosition[1];
       };
     };  
-    this.setPosition(monopoly.properties[0]);
+    // this.setPosition(monopoly.properties[0]);
   },
 
   defPieces: function(){
