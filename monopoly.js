@@ -9,6 +9,7 @@ var monopoly = {
   playersArray: [],
   properties: [],
   pieces: [],
+  freeParkingMoney: 0,
   setupGame:              document.getElementById("setup_game"),
   startGame:              document.getElementById("start_game"),
   gamePanel:              document.getElementById("game_panel"),
@@ -44,8 +45,8 @@ var monopoly = {
     var me = this;
 
     //remove this stuff for real game
-    this.playerEntries[0].value = "Justin";
-    this.playerEntries[1].value = "Cat"
+    // this.playerEntries[0].value = "Justin";
+    // this.playerEntries[1].value = "Cat"
     ////////////////////////////////////////////
 
     me.defProperties();
@@ -65,7 +66,7 @@ var monopoly = {
       me.playGame();
     });
     //remove this stuff for real game
-     //monopoly.startGame.click();
+     // monopoly.startGame.click();
     ////////////////////////////////////////////    
 
     this.addPlayer.addEventListener("click", function(){
@@ -98,6 +99,7 @@ var monopoly = {
   rollDice: function(){
     var diceListener = function(){
           var diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
+          //diceRoll = 6;
           monopoly.writeToOutputLog('You rolled a ' + diceRoll + '!');
           monopoly.phase = 'movePiece';
           monopoly.movePiece(diceRoll);
@@ -129,29 +131,43 @@ var monopoly = {
 
   onProperty: function(){
     if (monopoly.properties[monopoly.currentPlayer().position].status == 'available'){
-      monopoly.writeToOutputLog("Property is available");
       monopoly.addBuyPropertyListener();
       monopoly.addSkipPropertyListener();
+
+      monopoly.writeToOutputLog("Property is available");
     }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'owned'){
-      monopoly.writeToOutputLog("Property is owned");
+      //regular property - pay rent
+      monopoly.currentPlayer().payRent(monopoly.properties[monopoly.currentPlayer().position].rent, monopoly.properties[monopoly.currentPlayer().position].owner);
+      monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' just landed on a property owned by ' + monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].name);
+      monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' now has  ' + monopoly.currentPlayer().cash + 'dollars.');
+      monopoly.writeToOutputLog(monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].name + ' now has  ' + monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].cash + 'dollars.');
+      monopoly.nextPlayer();
+      
+      //if utility
+      //if railroad
     }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'mortgaged'){
       monopoly.writeToOutputLog("Property is mortgaged");
+      monopoly.nextPlayer();
     }else{
-      monopoly.writeToOutputLog("Property is all jacked up" );
+      //if Go
+      //if jail
+      //if free parking
+      //if go to jail
+      //if chance
+      //if community chest
+      //if taxes
+      monopoly.writeToOutputLog("Property is not available for purchase" );
+      monopoly.nextPlayer();
     };
   }, 
 
   addBuyPropertyListener: function(){
     monopoly.buyPropertyButton.style.display = 'block';
-    
     monopoly.buyPropertyButton.addEventListener("click", monopoly.buyPropertyListener);
-    
   },
 
   addSkipPropertyListener: function(){
-    
     monopoly.skipPropertyButton.style.display = 'block';
-    
     monopoly.skipPropertyButton.addEventListener("click", monopoly.skipPropertyListener);
   },
 
@@ -199,6 +215,10 @@ var monopoly = {
     this.divPosition = function(){
       return monopoly.propertyPieceBoxes[monopoly.properties[this.position].piecePosition]
     };
+    this.payRent = function(rent, toPlayer){
+      this.cash = this.cash - rent;
+      monopoly.playersArray[toPlayer].cash = monopoly.playersArray[toPlayer].cash + rent;
+    };
   },
 
   Property: function(name, cost, rent, group, position){
@@ -209,7 +229,10 @@ var monopoly = {
     this.group = group;
     //Changeable
     this.owner = undefined;
-    this.status = 'available';
+    if(group != 'non-property'){
+      this.status = 'available';  
+    };
+    
     this.numberOfHouses = 0;
     this.piecePosition = position;
 
