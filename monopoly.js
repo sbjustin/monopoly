@@ -24,16 +24,8 @@ var monopoly = {
   endGameButton:          document.getElementById("end_game_button"),
   buyPropertyButton:      document.getElementById("buy_property_button"),
   skipPropertyButton:     document.getElementById("skip_property_button"),
-  // shipPiece:              document.getElementById("ship_piece"),
-  // dogPiece:               document.getElementById("dog_piece"),
   propertyPieceBoxes:     document.getElementsByClassName("pieces_box"),
 
-  // propertyPieceBox: function(box){
-  //   if(box <= 10){
-  //     return propertyPieceBoxes[40 - (30 + box)]
-  //   };
-  // },
-  //listeners
   buyPropertyListener: function(){
       monopoly.properties[monopoly.currentPlayer().position].status = 'owned';
       monopoly.properties[monopoly.currentPlayer().position].owner = monopoly.playersTurn;
@@ -58,7 +50,6 @@ var monopoly = {
 
     me.defProperties();
     me.defPieces();
-    me.reorderPropertyPieceBoxes();
 
     me.startGame.addEventListener("click", function(){
       me.setupGame.style.display = 'none';
@@ -74,11 +65,8 @@ var monopoly = {
       me.playGame();
     });
     //remove this stuff for real game
-    monopoly.startGame.click();
+     //monopoly.startGame.click();
     ////////////////////////////////////////////    
-    me.endGameButton.addEventListener("click", function(){
-      me.gameOver = true;
-    });
 
     this.addPlayer.addEventListener("click", function(){
       me.numberOfPlayers = me.numberOfPlayers + 1;
@@ -87,7 +75,7 @@ var monopoly = {
       newLI.innerHTML = "Player" + me.numberOfPlayers + "'s Name: <input type='text' name='playername' class = 'player_entry_form_field'>";
       //One Liner to do it
       //me.playerEntryFormList.appendChild(document.createElement("LI")).innerHTML = "Player" + me.numberOfPlayers + "'s Name: <input type='text' name='player" + me.numberOfPlayers + "name' class = 'player_entry_form_field'>";
-      if (me.numberOfPlayers == 8){
+      if (me.numberOfPlayers == 4){
         me.addPlayer.style.visibility = 'hidden';
       };
     });
@@ -122,7 +110,7 @@ var monopoly = {
   movePiece: function(spaces){
     //monopoly.propertyPieceBoxes[0].innerHTML = monopoly.pieces[0].htmlCode
     //remove piece
-    monopoly.propertyPieceBoxes[monopoly.properties[monopoly.currentPlayer().position].piecePosition].innerHTML = monopoly.propertyPieceBoxes[monopoly.currentPlayer().position].innerHTML.replace(monopoly.pieces[monopoly.currentPlayer().piece].htmlCode,"");
+    monopoly.pieces[monopoly.currentPlayer().piece].remove();
     
     if (monopoly.currentPlayer().position + spaces > 39 ){
       monopoly.currentPlayer().position = spaces - (40 - monopoly.currentPlayer().position);
@@ -131,9 +119,11 @@ var monopoly = {
       monopoly.currentPlayer().position += spaces;
     };
     
-    monopoly.propertyPieceBoxes[monopoly.properties[monopoly.currentPlayer().position].piecePosition].innerHTML = monopoly.propertyPieceBoxes[monopoly.currentPlayer().position].innerHTML + monopoly.pieces[monopoly.currentPlayer().piece].htmlCode;
-    //monopoly.pieces[monopoly.playersTurn].setPosition(monopoly.properties[monopoly.currentPlayer().position]);
-    monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.currentPlayer().position + ".");
+    //TODO: issue with two pieces on one spot
+    //draw piece
+    monopoly.pieces[monopoly.currentPlayer().piece].add();
+    
+    monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.properties[monopoly.currentPlayer().position].name + ".");
     monopoly.phase = "onProperty";
     monopoly.onProperty();
   },
@@ -141,7 +131,8 @@ var monopoly = {
   onProperty: function(){
     if (monopoly.properties[monopoly.currentPlayer().position].status == 'available'){
       monopoly.writeToOutputLog("Property is available");
-      monopoly.addPropertyListeners();
+      monopoly.addBuyPropertyListener();
+      monopoly.addSkipPropertyListener();
     }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'owned'){
       monopoly.writeToOutputLog("Property is owned");
     }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'mortgaged'){
@@ -151,10 +142,17 @@ var monopoly = {
     };
   }, 
 
-  addPropertyListeners: function(){
+  addBuyPropertyListener: function(){
     monopoly.buyPropertyButton.style.display = 'block';
-    monopoly.skipPropertyButton.style.display = 'block';
+    
     monopoly.buyPropertyButton.addEventListener("click", monopoly.buyPropertyListener);
+    
+  },
+
+  addSkipPropertyListener: function(){
+    
+    monopoly.skipPropertyButton.style.display = 'block';
+    
     monopoly.skipPropertyButton.addEventListener("click", monopoly.skipPropertyListener);
   },
 
@@ -169,6 +167,7 @@ var monopoly = {
     monopoly.writeToOutputLog(this.numberOfPlayers + " players are joining");
     for (var i = 0; i < this.numberOfPlayers; ++i) {
       this.playersArray[i] = new this.Player(this.playerEntries[i].value, i);  
+      monopoly.propertyPieceBoxes[monopoly.properties[0].piecePosition].innerHTML = monopoly.propertyPieceBoxes[monopoly.properties[0].piecePosition].innerHTML + monopoly.pieces[monopoly.playersArray[i].piece].htmlCode;
       monopoly.writeToOutputLog("Player " + this.playersArray[i].name + " has joined the game.");
     };
     
@@ -198,10 +197,12 @@ var monopoly = {
     this.cash = monopoly.startingMoney;
     this.piece = piece;
     this.position = 0; //Position on board 0 -> 39
+    this.divPosition = function(){
+      return monopoly.propertyPieceBoxes[monopoly.properties[this.position].piecePosition]
+    };
   },
 
   Property: function(name, cost, rent, group, position){
-    //Pixels to top left corner from left to right   0 90 142 192  242  296 348  400 452 504 554
     //unchanging
     this.name = name;
     this.cost = cost;
@@ -212,30 +213,27 @@ var monopoly = {
     this.status = 'available';
     this.numberOfHouses = 0;
     this.piecePosition = position;
+
   },
 
   Piece: function(name, css_id, htmlCode){
     this.name = name;
     this.css_id = css_id;
     this.htmlCode = htmlCode;
-    this.setPosition = function(property){
-      // set x and y position of property
-      if (css_id == "dog_piece"){
-        monopoly.dogPiece.style.left = property.piecePosition[0];
-        monopoly.dogPiece.style.top = property.piecePosition[1];
-      }
-      else if (css_id == "ship_piece"){
-        monopoly.shipPiece.style.left = property.piecePosition[0];
-        monopoly.shipPiece.style.top = property.piecePosition[1];
-      };
-    };  
-    // this.setPosition(monopoly.properties[0]);
+    this.add = function(){
+      monopoly.currentPlayer().divPosition().innerHTML = monopoly.propertyPieceBoxes[monopoly.currentPlayer().position].innerHTML + this.htmlCode;
+    };
+    this.remove = function(){
+      this.elem = document.getElementById(css_id);
+      this.elem.parentElement.removeChild(this.elem);
+    };
   },
 
   defPieces: function(){
-    monopoly.pieces[0] = new this.Piece("Doggy", "dog_piece", "<img src = 'images/dog_piece.png' class = 'monopoly_piece 'id = 'dog_piece'/>");
-    monopoly.pieces[1] = new this.Piece("Ship", "ship_piece", "<img src = 'images/ship_piece.png' class = 'monopoly_piece'  id = 'ship_piece'/>");
-
+    monopoly.pieces[0] = new this.Piece("Car", "car_piece", "<img src = 'images/car_piece.png' class = 'monopoly_piece 'id = 'car_piece'/>");
+    monopoly.pieces[1] = new this.Piece("Doggy", "dog_piece", "<img src = 'images/dog_piece.png' class = 'monopoly_piece 'id = 'dog_piece'/>");
+    monopoly.pieces[2] = new this.Piece("Ship", "ship_piece", "<img src = 'images/ship_piece.png' class = 'monopoly_piece'  id = 'ship_piece'/>");
+    monopoly.pieces[3] = new this.Piece("Hat", "hat_piece", "<img src = 'images/hat_piece.png' class = 'monopoly_piece'  id = 'hat_piece'/>");
         
 
   },
@@ -291,13 +289,8 @@ var monopoly = {
     monopoly.properties[35] = new this.Property("Short Line Railroad",200 , -2,"Railroad", 24);
 
 
-  }, 
-
-  reorderPropertyPieceBoxes: function(){
-
   }
 
-
-  };
+};
 
   monopoly.start();

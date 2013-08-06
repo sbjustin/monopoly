@@ -34,7 +34,7 @@
 
 #game_panel{
   border: black solid 3px;
-  width:1010px;
+  width:995px;
   display: none;
   margin:auto;
   overflow: auto;
@@ -55,17 +55,18 @@
 }
 
 #dice{
-  display: block;
+  
   /*background-image: URL("images/dice.jpg");*/
-  border-bottom: gray solid 1px;
-  width: 100%;
+  width: 150px;
   height: 150px;
-  margin: auto;
+  
+  float: left;
 }
 
-#dice img{
-  display: block;
-  margin: auto;
+#buttons{
+  width: 202px;
+  height: 150px;
+  float: left;
 }
 
 #player_entry_form li {
@@ -74,7 +75,14 @@
 
 #output_log li {
   list-style-type: none;
+  display: block;
+  width: 100%;
+}
 
+#display_panel{
+  height: 488px;
+  width: 100%;
+  border-bottom: 2px solid black;
 }
 
 #buy_property_button {
