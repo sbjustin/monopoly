@@ -119,7 +119,6 @@ var monopoly = {
       monopoly.currentPlayer().position += spaces;
     };
     
-    //TODO: issue with two pieces on one spot
     //draw piece
     monopoly.pieces[monopoly.currentPlayer().piece].add();
     
@@ -221,7 +220,7 @@ var monopoly = {
     this.css_id = css_id;
     this.htmlCode = htmlCode;
     this.add = function(){
-      monopoly.currentPlayer().divPosition().innerHTML = monopoly.propertyPieceBoxes[monopoly.currentPlayer().position].innerHTML + this.htmlCode;
+      monopoly.currentPlayer().divPosition().innerHTML = monopoly.currentPlayer().divPosition().innerHTML + this.htmlCode;
     };
     this.remove = function(){
       this.elem = document.getElementById(css_id);
