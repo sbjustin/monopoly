@@ -32,13 +32,14 @@ var monopoly = {
   incomeTaxPercentButton: document.getElementById("income_tax_percent_button"),
   incomeTax200Button:     document.getElementById("income_tax_200_button"),
   propertyPieceBoxes:     document.getElementsByClassName("pieces_box"),
+  propertyModal:          document.getElementById("property_modal"),
 
   buyPropertyListener: function(){
-      monopoly.removePropertyListeners();
-      monopoly.currentPlayer().buyProperty(monopoly.properties[monopoly.currentPlayer().position])
-      monopoly.currentPlayer().refreshPlayerDisplay();
-      monopoly.nextPlayer();
-    },
+    monopoly.removePropertyListeners();
+    monopoly.currentPlayer().buyProperty(monopoly.properties[monopoly.currentPlayer().position])
+    monopoly.currentPlayer().refreshPlayerDisplay();
+    monopoly.nextPlayer();
+  },
 
   skipPropertyListener: function(){
     monopoly.removePropertyListeners();
@@ -90,7 +91,8 @@ var monopoly = {
       me.playGame();
     });
     //remove this stuff for real game
-     // monopoly.startGame.click();
+     //monopoly.startGame.click();
+     //monopoly.properties[1].showModal();
     ////////////////////////////////////////////    
 
     this.addPlayer.addEventListener("click", function(){
@@ -277,7 +279,7 @@ var monopoly = {
       this.propertyBox = document.getElementById("player" + this.order + "_list");
       temphtml = "<li class = '" + "'> " + this.name + " [$" + this.cash + "]</li>"
       for (var i = 0; i < this.ownedProperties().length; i++) {
-        temphtml = temphtml +  "<li id = '" + this.ownedProperties()[i].piecePosition + "' class = 'player_list_" + this.ownedProperties()[i].group + "'> " + this.ownedProperties()[i].name + "</li>"
+        temphtml = temphtml +  "<li id = '" + this.ownedProperties()[i].piecePosition + "' class = 'player_list_" + this.ownedProperties()[i].group + "' onmouseover='monopoly.properties["+this.ownedProperties()[i].order+"].showModal();' onmouseout='monopoly.properties[0].hideModal();'> " + this.ownedProperties()[i].name + "</li>"
       };
       this.propertyBox.innerHTML = temphtml;
     };
@@ -307,6 +309,7 @@ var monopoly = {
     this.cost = cost;
     this.rent = rent;
     this.group = group;
+    this.order = undefined;
     //Changeable
     this.owner = undefined;
     if(group != 'non-property'){
@@ -315,6 +318,37 @@ var monopoly = {
     this.numberOfHouses = 0;
     this.numberOfHotels = 0;
     this.piecePosition = position;
+
+    this.showModal = function(){
+        monopoly.propertyModal.innerHTML = " \
+  <div id = 'property_modal_name'> \
+    " + this.name + " \
+  </div> \
+  <div id = 'property_modal_price_rent'> \
+    PRICE $" + this.cost + " RENT $" + this.rent + "\
+  </div> \
+  <div> \
+    <ul id = 'property_modal_rent_with_houses_hotels'> \
+      <li>With 1 House " + (this.rent * 5) + " </li> \
+      <li>With 2 Houses " + ((this.rent * 5)*3) + " </li> \
+      <li>With 3 Houses " + ((this.rent * 5)*6) + " </li> \
+      <li>With 4 Houses " + ((this.rent * 5)*8) + " </li> \
+      <li>With HOTEL " + ((this.rent * 5)*3*3*4) + " </li> \
+    </ul> \
+  </div> \
+  <div>  \
+    <ul id = 'property_modal_cost_of_houses_hotels'> \
+      <li>One House Costs " + this.cost + "</li> \
+      <li>Mortgage Value " + (this.cost * .7) + "</li> \
+    </ul> \
+  </div> \
+  <div id = 'property_modal_costs'> \
+  </div> "
+      monopoly.propertyModal.style.display = 'block';
+    };
+    this.hideModal = function(){
+      monopoly.propertyModal.style.display = 'none';
+    };
 
   },
 
@@ -398,6 +432,10 @@ var monopoly = {
     monopoly.properties[15] = new this.Property("Pennsylvania Railroad",200 , -2,"railroad", 15);
     monopoly.properties[25] = new this.Property("B. & O. Railroad",200 , -2,"railroad", 5);
     monopoly.properties[35] = new this.Property("Short Line Railroad",200 , -2,"railroad", 24);
+
+    for (var i = 0; i < monopoly.properties.length; i++) {
+      monopoly.properties[i].order = i;
+    };
 
 
   }
