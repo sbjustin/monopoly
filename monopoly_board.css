@@ -111,7 +111,6 @@
   text-align: center;
   margin: 2px;
 }
-
 /*
 .piece_box{
   min-height: 20px;
@@ -133,6 +132,8 @@
   height: 20px;
   float: left;
 }
+
+
 
 .purple{
   background-color: purple;
@@ -174,6 +175,8 @@
   border-right: 1px solid black;  
 }
 
+
+
 .player_list_railroad{
   background-color: lightgray;
 }
@@ -209,3 +212,4 @@
 .player_list_blue{
   border: 2px solid blue;  
 }
+
