@@ -105,6 +105,12 @@
   width: 25px;
   float: left;
 }
+
+.player_list li{
+  list-style: none;
+  text-align: center;
+  margin: 2px;
+}
 /*
 .piece_box{
   min-height: 20px;
@@ -126,6 +132,8 @@
   height: 20px;
   float: left;
 }
+
+
 
 .purple{
   background-color: purple;
@@ -165,5 +173,43 @@
 .blue{
   background-color: blue;
   border-right: 1px solid black;  
+}
+
+
+
+.player_list_railroad{
+  background-color: lightgray;
+}
+
+.player_list_purple{
+  border: 2px solid purple;
+}
+
+.player_list_teal{
+  border: 2px solid teal;
+}
+
+.player_list_yellow{
+  border: 2px solid yellow;
+}
+
+.player_list_maroon{
+  border: 2px solid maroon; 
+}
+
+.player_list_orange{
+  border: 2px solid orange;  
+}
+
+.player_list_red{
+  border: 2px solid red;  
+}
+
+.player_list_green{
+  border: 2px solid green;  
+}
+
+.player_list_blue{
+  border: 2px solid blue;  
 }
 
