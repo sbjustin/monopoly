@@ -35,9 +35,9 @@
 #game_panel{
   border: black solid 3px;
   width:995px;
+  height: 640;
   display: none;
   margin:auto;
-  overflow: auto;
 }
 
 #left_pane{
