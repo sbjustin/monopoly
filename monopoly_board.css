@@ -105,15 +105,13 @@
   width: 25px;
   float: left;
 }
-<<<<<<< HEAD
-=======
 
 .player_list li{
   list-style: none;
   text-align: center;
   margin: 2px;
 }
->>>>>>> gh-pages
+
 /*
 .piece_box{
   min-height: 20px;
@@ -136,11 +134,6 @@
   float: left;
 }
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> gh-pages
 .purple{
   background-color: purple;
   border-bottom: 1px solid black;
@@ -181,10 +174,6 @@
   border-right: 1px solid black;  
 }
 
-<<<<<<< HEAD
-=======
-
-
 .player_list_railroad{
   background-color: lightgray;
 }
@@ -220,5 +209,3 @@
 .player_list_blue{
   border: 2px solid blue;  
 }
-
->>>>>>> gh-pages
