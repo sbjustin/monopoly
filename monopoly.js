@@ -3,7 +3,6 @@ var monopoly = {
 
   numberOfPlayers: 2,
   startingMoney: 1500,
-  phase: 'playing', //diceRoll: 0?
   playersTurn: 0,
   gameOver: false,
   playersArray: [],
@@ -48,20 +47,21 @@ var monopoly = {
 
   incomeTaxPercentageListener: function(){
     monopoly.currentPlayer().payIncomeTaxPercentage();
-    monopoly.incomeTaxPercentButton.removeEventListener('click', monopoly.incomeTaxPercentageListener);
-    monopoly.incomeTaxPercentButton.style.display = 'none';
-    monopoly.incomeTax200Button.style.display = 'none';
-    monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' now has  ' + monopoly.currentPlayer().cash + 'dollars.');
-    monopoly.nextPlayer();
+    monopoly.removeIncomeTaxListeners();
   },
 
   incomeTax200DollarsListener: function(){
     monopoly.currentPlayer().payIncomeTax200Dollars();
+    monopoly.removeIncomeTaxListeners();
+  },
+
+  removeIncomeTaxListeners: function(){
+    monopoly.incomeTaxPercentButton.removeEventListener('click', monopoly.incomeTaxPercentageListener);
     monopoly.incomeTax200Button.removeEventListener('click', monopoly.incomeTax200DollarsListener);
     monopoly.incomeTax200Button.style.display = 'none';
     monopoly.incomeTaxPercentButton.style.display = 'none';
-    //TODO: move to remove listeners function
     monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' now has  ' + monopoly.currentPlayer().cash + 'dollars.');
+    monopoly.currentPlayer().refreshPlayerDisplay();
     monopoly.nextPlayer();
   },
 
@@ -69,8 +69,8 @@ var monopoly = {
     var me = this;
 
     //remove this stuff for real game
-    // this.playerEntries[0].value = "Justin";
-    // this.playerEntries[1].value = "Cat"
+    this.playerEntries[0].value = "Justin";
+    this.playerEntries[1].value = "Cat"
     ////////////////////////////////////////////
 
     me.defProperties();
@@ -91,7 +91,7 @@ var monopoly = {
       me.playGame();
     });
     //remove this stuff for real game
-     //monopoly.startGame.click();
+     monopoly.startGame.click();
      //monopoly.properties[1].showModal();
     ////////////////////////////////////////////    
 
@@ -118,16 +118,17 @@ var monopoly = {
 
   playGame: function(){
     this.writeToOutputLog(monopoly.currentPlayer().name + ", it's your turn"); 
-    this.phase = 'diceRoll'
+    this.playerBox = document.getElementById("player" + monopoly.currentPlayer().order + "_list");
+    this.playerBox.childNodes[0].style.border = '3px solid blue';
+    
     this.rollDice();
   },
 
   rollDice: function(){
     var diceListener = function(){
           var diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-          //diceRoll = 8;
+          //diceRoll = 4;
           monopoly.writeToOutputLog('You rolled a ' + diceRoll + '!');
-          monopoly.phase = 'movePiece';
           monopoly.movePiece(diceRoll);
           monopoly.dice.removeEventListener('click', diceListener);  
       };
@@ -141,6 +142,7 @@ var monopoly = {
     monopoly.pieces[monopoly.currentPlayer().piece].remove();
     
     if (monopoly.currentPlayer().position + spaces > 39 ){
+      monopoly.currentPlayer().cash += 200;
       monopoly.currentPlayer().position = spaces - (40 - monopoly.currentPlayer().position);
     }
     else{
@@ -151,7 +153,6 @@ var monopoly = {
     monopoly.pieces[monopoly.currentPlayer().piece].add();
     
     monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.properties[monopoly.currentPlayer().position].name + ".");
-    monopoly.phase = "onProperty";
     monopoly.onProperty();
   },
 
@@ -236,11 +237,15 @@ var monopoly = {
   },
 
   nextPlayer: function(){
+    this.playerBox = document.getElementById("player" + monopoly.currentPlayer().order + "_list");
+    this.playerBox.childNodes[0].style.border = '3px solid white';
     if (monopoly.numberOfPlayers - 1 == monopoly.playersTurn){
       monopoly.playersTurn = 0;
     }else{
       monopoly.playersTurn += 1;
     };
+    this.playerBox = document.getElementById("player" + monopoly.currentPlayer().order + "_list");
+    this.playerBox.childNodes[0].style.border = '3px solid blue';
     monopoly.writeToOutputLog(monopoly.currentPlayer().name + ", it's your turn"); 
     monopoly.rollDice();
   },
@@ -277,7 +282,7 @@ var monopoly = {
     };
     this.refreshPlayerDisplay = function(){
       this.propertyBox = document.getElementById("player" + this.order + "_list");
-      temphtml = "<li class = '" + "'> " + this.name + " [$" + this.cash + "]</li>"
+      temphtml = "<li class = 'player_box_name" + "'> " + monopoly.pieces[this.piece].htmlCode + this.name + " [$" + this.cash + "]</li>"
       for (var i = 0; i < this.ownedProperties().length; i++) {
         temphtml = temphtml +  "<li id = '" + this.ownedProperties()[i].piecePosition + "' class = 'player_list_" + this.ownedProperties()[i].group + "' onmouseover='monopoly.properties["+this.ownedProperties()[i].order+"].showModal();' onmouseout='monopoly.properties[0].hideModal();'> " + this.ownedProperties()[i].name + "</li>"
       };

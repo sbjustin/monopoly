@@ -98,6 +98,10 @@
   -webkit-padding-start: 0px;
 }
 
+.player_box_name{
+  border: 3px solid white;
+}
+
 .action_button {
   display: none;
   -moz-box-shadow:inset 0px 1px 0px 0px #cae3fc;
@@ -137,8 +141,12 @@
   margin: 2px;
 }
 
+.players_turn{
+  text-shadow: green 0.1em 0.1em 0.2em;
+}
+
 .player_list_railroad{
-  background-color: lightgray;
+  border: 2px solid lightgray;
 }
 
 .player_list_purple{
