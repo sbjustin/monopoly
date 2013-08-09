@@ -70,8 +70,8 @@ var monopoly = {
     var me = this;
 
     //remove this stuff for real game
-    // this.playerEntries[0].value = "Justin";
-    // this.playerEntries[1].value = "Cat"
+    this.playerEntries[0].value = "Justin";
+    this.playerEntries[1].value = "Cat"
     ////////////////////////////////////////////
 
     me.defProperties();
@@ -92,7 +92,7 @@ var monopoly = {
       me.playGame();
     });
     //remove this stuff for real game
-     // monopoly.startGame.click();
+     monopoly.startGame.click();
      // monopoly.properties[1].showModal();
     ////////////////////////////////////////////    
 
@@ -128,7 +128,7 @@ var monopoly = {
   rollDice: function(){
     var diceListener = function(){
           monopoly.diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-          // monopoly.diceRoll = 12;
+          monopoly.diceRoll = 5;
           monopoly.writeToOutputLog('You rolled a ' + monopoly.diceRoll + '!');
           monopoly.movePiece(monopoly.diceRoll);
           monopoly.dice.removeEventListener('click', diceListener);  
@@ -363,7 +363,28 @@ var monopoly = {
             </div> "
       }
       else if(this.group == 'railroad'){
-
+        monopoly.propertyModal.innerHTML = " \
+            <div id = 'property_modal_name' style='background-color:lightgray'> \
+              " + this.name + " \
+            </div> \
+            <div id = 'property_modal_price_rent'> \
+              \
+            </div> \
+            <div> \
+              <ul id = 'property_modal_rent_with_houses_hotels'> \
+                <li>Rent $25</li> \
+                <li>If 2 RailRoads are owned $50</li> \
+                <li>If 3 RailRoads are owned $100</li> \
+                <li>If 4 RailRoads are owned $200</li> \
+              </ul> \
+            </div> \
+            <div>  \
+              <ul id = 'property_modal_cost_of_houses_hotels'> \
+                <li>Mortgage Value " + (this.cost * .5) + "</li> \
+              </ul> \
+            </div> \
+            <div id = 'property_modal_costs'> \
+            </div> "
       }
       else{
         monopoly.propertyModal.innerHTML = " \
