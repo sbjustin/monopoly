@@ -70,8 +70,8 @@ var monopoly = {
     var me = this;
 
     //remove this stuff for real game
-    this.playerEntries[0].value = "Justin";
-    this.playerEntries[1].value = "Cat"
+    // this.playerEntries[0].value = "Justin";
+    // this.playerEntries[1].value = "Cat"
     ////////////////////////////////////////////
 
     me.defProperties();
@@ -92,7 +92,7 @@ var monopoly = {
       me.playGame();
     });
     //remove this stuff for real game
-     monopoly.startGame.click();
+     // monopoly.startGame.click();
      // monopoly.properties[1].showModal();
     ////////////////////////////////////////////    
 
