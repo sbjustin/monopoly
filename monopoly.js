@@ -175,8 +175,15 @@ var monopoly = {
         monopoly.writeToOutputLog('utility');
         monopoly.nextPlayer();
       }else if(monopoly.properties[monopoly.currentPlayer().position].group == 'railroad'){
-        
-        monopoly.writeToOutputLog('railroad');
+        var railroads = [monopoly.properties[5], monopoly.properties[15], monopoly.properties[25], monopoly.properties[35]];
+        var ownershipCount = 0;
+        for (var i = 0; i < railroads.length; i++) {
+          if (monopoly.properties[monopoly.currentPlayer().position].owner ==  railroads[i].owner){
+            ownershipCount += 1;
+          };
+        };
+        monopoly.currentPlayer().payRent(25 * ownershipCount, monopoly.properties[monopoly.currentPlayer().position].owner);
+        monopoly.nextPlayer();
 
       }else{
         monopoly.currentPlayer().payRent(monopoly.properties[monopoly.currentPlayer().position].rent, monopoly.properties[monopoly.currentPlayer().position].owner);
@@ -330,6 +337,13 @@ var monopoly = {
     this.rent = rent;
     this.group = group;
     this.order = undefined;
+    this.houseCost = 0;
+    this.hotelCost = 0;
+    this.rentWith1House = this.rent * 5;
+    this.rentWith2Houses = this.rent * 15;
+    this.rentWith3Houses = this.rent * 45;
+    this.rentWith4Houses = this.rent * 80;
+    this.rentWith1Hotel = this.rent * 125;
     //Changeable
     this.owner = undefined;
     if(group != 'non-property'){
@@ -380,7 +394,7 @@ var monopoly = {
             </div> \
             <div>  \
               <ul id = 'property_modal_cost_of_houses_hotels'> \
-                <li>Mortgage Value " + (this.cost * .5) + "</li> \
+                <li>Mortgage Value $100</li> \
               </ul> \
             </div> \
             <div id = 'property_modal_costs'> \
