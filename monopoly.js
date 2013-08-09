@@ -13,6 +13,7 @@ var monopoly = {
   freeParkingMoney: 0,
   housesAvailableForPurchase: 32,
   hotelsAvailableForPurchase: 12,
+  diceRoll: 0,
   setupGame:              document.getElementById("setup_game"),
   startGame:              document.getElementById("start_game"),
   gamePanel:              document.getElementById("game_panel"),
@@ -69,8 +70,8 @@ var monopoly = {
     var me = this;
 
     //remove this stuff for real game
-    // this.playerEntries[0].value = "Justin";
-    // this.playerEntries[1].value = "Cat"
+    this.playerEntries[0].value = "Justin";
+    this.playerEntries[1].value = "Cat"
     ////////////////////////////////////////////
 
     me.defProperties();
@@ -91,8 +92,8 @@ var monopoly = {
       me.playGame();
     });
     //remove this stuff for real game
-     // monopoly.startGame.click();
-     //monopoly.properties[1].showModal();
+     monopoly.startGame.click();
+     // monopoly.properties[1].showModal();
     ////////////////////////////////////////////    
 
     this.addPlayer.addEventListener("click", function(){
@@ -126,10 +127,10 @@ var monopoly = {
 
   rollDice: function(){
     var diceListener = function(){
-          var diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-          //diceRoll = 4;
-          monopoly.writeToOutputLog('You rolled a ' + diceRoll + '!');
-          monopoly.movePiece(diceRoll);
+          monopoly.diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
+          monopoly.diceRoll = 12;
+          monopoly.writeToOutputLog('You rolled a ' + monopoly.diceRoll + '!');
+          monopoly.movePiece(monopoly.diceRoll);
           monopoly.dice.removeEventListener('click', diceListener);  
       };
       this.dice.addEventListener("click", diceListener);
@@ -157,21 +158,31 @@ var monopoly = {
   },
 
   onProperty: function(){
+    
     if (monopoly.properties[monopoly.currentPlayer().position].status == 'available'){
       monopoly.addBuyPropertyListener();
       monopoly.addSkipPropertyListener();
 
       monopoly.writeToOutputLog("Property is available");
     }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'owned'){
-      //regular property - pay rent
-      monopoly.currentPlayer().payRent(monopoly.properties[monopoly.currentPlayer().position].rent, monopoly.properties[monopoly.currentPlayer().position].owner);
-      monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' just landed on a property owned by ' + monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].name);
-      monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' now has  ' + monopoly.currentPlayer().cash + 'dollars.');
-      monopoly.writeToOutputLog(monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].name + ' now has  ' + monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].cash + 'dollars.');
-      monopoly.nextPlayer();
-      
-      //if utility
-      //if railroad
+      if (monopoly.properties[monopoly.currentPlayer().position].group == 'utility'){
+        //if both utilities
+        if(monopoly.properties[12].owner == monopoly.properties[28].owner){
+          monopoly.currentPlayer().payRent(monopoly.diceRoll * 10, monopoly.properties[monopoly.currentPlayer().position].owner);
+        }else{
+          monopoly.currentPlayer().payRent(monopoly.diceRoll * 4, monopoly.properties[monopoly.currentPlayer().position].owner);
+        };
+        monopoly.writeToOutputLog('utility');
+        monopoly.nextPlayer();
+      }else if(monopoly.properties[monopoly.currentPlayer().position].group == 'railroad'){
+        
+        monopoly.writeToOutputLog('railroad');
+
+      }else{
+        monopoly.currentPlayer().payRent(monopoly.properties[monopoly.currentPlayer().position].rent, monopoly.properties[monopoly.currentPlayer().position].owner);
+        monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' just landed on a property owned by ' + monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].name);
+        monopoly.nextPlayer();
+        };
     }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'mortgaged'){
       monopoly.writeToOutputLog("Property is mortgaged");
       monopoly.nextPlayer();
@@ -272,6 +283,10 @@ var monopoly = {
     this.payRent = function(rent, toPlayer){
       this.cash = this.cash - rent;
       monopoly.playersArray[toPlayer].cash = monopoly.playersArray[toPlayer].cash + rent;
+      monopoly.writeToOutputLog(this.name + ' paid  ' + rent + ' dollars to ' + monopoly.playersArray[monopoly.properties[this.position].owner].name);
+      monopoly.writeToOutputLog(this.name + ' now has  ' + this.cash + 'dollars.');
+      monopoly.writeToOutputLog(monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].name + ' now has  ' + monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].cash + 'dollars.');
+        
     };
     this.buyProperty = function(property){
       property.status = 'owned';
@@ -325,30 +340,57 @@ var monopoly = {
     this.piecePosition = position;
 
     this.showModal = function(){
+      if(this.group == 'utility'){
         monopoly.propertyModal.innerHTML = " \
-  <div id = 'property_modal_name'> \
-    " + this.name + " \
-  </div> \
-  <div id = 'property_modal_price_rent'> \
-    PRICE $" + this.cost + " RENT $" + this.rent + "\
-  </div> \
-  <div> \
-    <ul id = 'property_modal_rent_with_houses_hotels'> \
-      <li>With 1 House " + (this.rent * 5) + " </li> \
-      <li>With 2 Houses " + ((this.rent * 5)*3) + " </li> \
-      <li>With 3 Houses " + ((this.rent * 5)*6) + " </li> \
-      <li>With 4 Houses " + ((this.rent * 5)*8) + " </li> \
-      <li>With HOTEL " + ((this.rent * 5)*3*3*4) + " </li> \
-    </ul> \
-  </div> \
-  <div>  \
-    <ul id = 'property_modal_cost_of_houses_hotels'> \
-      <li>One House Costs " + this.cost + "</li> \
-      <li>Mortgage Value " + (this.cost * .7) + "</li> \
-    </ul> \
-  </div> \
-  <div id = 'property_modal_costs'> \
-  </div> "
+            <div id = 'property_modal_name' style='background-color:lightgray'> \
+              " + this.name + " \
+            </div> \
+            <div id = 'property_modal_price_rent'> \
+              \
+            </div> \
+            <div> \
+              <ul id = 'property_modal_rent_with_houses_hotels'> \
+                <li>if one 'Utility' is owned rent is 4 times acmount shown on dice</li> \
+                <li>if both 'Utilities' are owned rent is 10 times amount shown on dice</li> \
+              </ul> \
+            </div> \
+            <div>  \
+              <ul id = 'property_modal_cost_of_houses_hotels'> \
+                <li>Mortgage Value " + (this.cost * .7) + "</li> \
+              </ul> \
+            </div> \
+            <div id = 'property_modal_costs'> \
+            </div> "
+      }
+      else if(this.group == 'railroad'){
+
+      }
+      else{
+        monopoly.propertyModal.innerHTML = " \
+            <div id = 'property_modal_name' style='background-color:"+ this.group +"'> \
+              " + this.name + " \
+            </div> \
+            <div id = 'property_modal_price_rent'> \
+              PRICE $" + this.cost + " RENT $" + this.rent + "\
+            </div> \
+            <div> \
+              <ul id = 'property_modal_rent_with_houses_hotels'> \
+                <li>With 1 House " + (this.rent * 5) + " </li> \
+                <li>With 2 Houses " + ((this.rent * 5)*3) + " </li> \
+                <li>With 3 Houses " + ((this.rent * 5)*6) + " </li> \
+                <li>With 4 Houses " + ((this.rent * 5)*8) + " </li> \
+                <li>With HOTEL " + ((this.rent * 5)*3*3*4) + " </li> \
+              </ul> \
+            </div> \
+            <div>  \
+              <ul id = 'property_modal_cost_of_houses_hotels'> \
+                <li>One House Costs " + this.cost + "</li> \
+                <li>Mortgage Value " + (this.cost * .7) + "</li> \
+              </ul> \
+            </div> \
+            <div id = 'property_modal_costs'> \
+            </div> "
+        };
       monopoly.propertyModal.style.display = 'block';
     };
     this.hideModal = function(){
