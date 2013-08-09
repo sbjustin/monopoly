@@ -146,6 +146,10 @@
 }
 
 .player_list_railroad{
+  border: 2px solid black;
+}
+
+.player_list_utility{
   border: 2px solid lightgray;
 }
 
