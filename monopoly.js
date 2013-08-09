@@ -128,7 +128,7 @@ var monopoly = {
   rollDice: function(){
     var diceListener = function(){
           monopoly.diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-          monopoly.diceRoll = 12;
+          // monopoly.diceRoll = 12;
           monopoly.writeToOutputLog('You rolled a ' + monopoly.diceRoll + '!');
           monopoly.movePiece(monopoly.diceRoll);
           monopoly.dice.removeEventListener('click', diceListener);  
