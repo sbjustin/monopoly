@@ -36,7 +36,7 @@ var monopoly = {
 
   buyPropertyListener: function(){
     monopoly.removePropertyListeners();
-    monopoly.currentPlayer().buyProperty(monopoly.properties[monopoly.currentPlayer().position])
+    monopoly.currentPlayer().buyProperty(monopoly.currentPlayer().currentPropertyOn())
     monopoly.currentPlayer().refreshPlayerDisplay();
     monopoly.nextPlayer();
   },
@@ -128,7 +128,7 @@ var monopoly = {
   rollDice: function(){
     var diceListener = function(){
           monopoly.diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-          monopoly.diceRoll = 5;
+          // monopoly.diceRoll = 5;
           monopoly.writeToOutputLog('You rolled a ' + monopoly.diceRoll + '!');
           monopoly.movePiece(monopoly.diceRoll);
           monopoly.dice.removeEventListener('click', diceListener);  
@@ -138,10 +138,11 @@ var monopoly = {
   },
 
   movePiece: function(spaces){
-    
-    //remove piece
+
+    //remove the piece from the board
     monopoly.pieces[monopoly.currentPlayer().piece].remove();
     
+    //move players postion. Pay 200 dollars if passing go
     if (monopoly.currentPlayer().position + spaces > 39 ){
       monopoly.currentPlayer().cash += 200;
       monopoly.currentPlayer().position = spaces - (40 - monopoly.currentPlayer().position);
@@ -150,65 +151,65 @@ var monopoly = {
       monopoly.currentPlayer().position += spaces;
     };
     
-    //draw piece
+    //redraw the piece on the board
     monopoly.pieces[monopoly.currentPlayer().piece].add();
     
-    monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.properties[monopoly.currentPlayer().position].name + ".");
+    monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.currentPlayer().currentPropertyOn().name + ".");
     monopoly.onProperty();
   },
 
   onProperty: function(){
     
-    if (monopoly.properties[monopoly.currentPlayer().position].status == 'available'){
+    if (monopoly.currentPlayer().currentPropertyOn().status == 'available'){
       monopoly.addBuyPropertyListener();
       monopoly.addSkipPropertyListener();
 
       monopoly.writeToOutputLog("Property is available");
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'owned'){
-      if (monopoly.properties[monopoly.currentPlayer().position].group == 'utility'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'owned'){
+      if (monopoly.currentPlayer().currentPropertyOn().group == 'utility'){
         //if both utilities
         if(monopoly.properties[12].owner == monopoly.properties[28].owner){
-          monopoly.currentPlayer().payRent(monopoly.diceRoll * 10, monopoly.properties[monopoly.currentPlayer().position].owner);
+          monopoly.currentPlayer().payRent(monopoly.diceRoll * 10, monopoly.currentPlayer().currentPropertyOn().owner);
         }else{
-          monopoly.currentPlayer().payRent(monopoly.diceRoll * 4, monopoly.properties[monopoly.currentPlayer().position].owner);
+          monopoly.currentPlayer().payRent(monopoly.diceRoll * 4, monopoly.currentPlayer().currentPropertyOn().owner);
         };
         monopoly.writeToOutputLog('utility');
         monopoly.nextPlayer();
-      }else if(monopoly.properties[monopoly.currentPlayer().position].group == 'railroad'){
+      }else if(monopoly.currentPlayer().currentPropertyOn().group == 'railroad'){
         var railroads = [monopoly.properties[5], monopoly.properties[15], monopoly.properties[25], monopoly.properties[35]];
         var ownershipCount = 0;
         for (var i = 0; i < railroads.length; i++) {
-          if (monopoly.properties[monopoly.currentPlayer().position].owner ==  railroads[i].owner){
+          if (monopoly.currentPlayer().currentPropertyOn().owner ==  railroads[i].owner){
             ownershipCount += 1;
           };
         };
-        monopoly.currentPlayer().payRent(25 * ownershipCount, monopoly.properties[monopoly.currentPlayer().position].owner);
+        monopoly.currentPlayer().payRent(25 * ownershipCount, monopoly.currentPlayer().currentPropertyOn().owner);
         monopoly.nextPlayer();
 
       }else{
-        monopoly.currentPlayer().payRent(monopoly.properties[monopoly.currentPlayer().position].rent, monopoly.properties[monopoly.currentPlayer().position].owner);
-        monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' just landed on a property owned by ' + monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].name);
+        monopoly.currentPlayer().payRent(monopoly.currentPlayer().currentPropertyOn().rent, monopoly.currentPlayer().currentPropertyOn().owner);
+        monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' just landed on a property owned by ' + monopoly.playersArray[monopoly.currentPlayer().currentPropertyOn().owner].name);
         monopoly.nextPlayer();
         };
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'mortgaged'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'mortgaged'){
       monopoly.writeToOutputLog("Property is mortgaged");
       monopoly.nextPlayer();
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'go'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'go'){
       monopoly.writeToOutputLog("Property is Go and not available for purchase" );
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'go_to_jail'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'go_to_jail'){
       monopoly.nextPlayer();
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'jail'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'jail'){
       monopoly.nextPlayer();
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'chance'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'chance'){
       monopoly.nextPlayer();
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'community_chest'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'community_chest'){
       monopoly.nextPlayer();
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'free_parking'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'free_parking'){
       monopoly.nextPlayer();
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'income_tax'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'income_tax'){
       monopoly.addIncomeTaxPercentageListener();
       monopoly.addIncomeTax200DollarsListener();
-    }else if (monopoly.properties[monopoly.currentPlayer().position].status == 'luxury_tax'){
+    }else if (monopoly.currentPlayer().currentPropertyOn().status == 'luxury_tax'){
       monopoly.nextPlayer();
     }else{
       monopoly.writeToOutputLog("Property is not available for purchase" );
@@ -284,6 +285,9 @@ var monopoly = {
     this.position = 0; //Position on board 0 -> 39
     this.order = order;
     //this.ownedProperties = [];
+    this.currentPropertyOn = function(){
+      return monopoly.properties[this.position];
+    };
     this.divPosition = function(){
       return monopoly.propertyPieceBoxes[monopoly.properties[this.position].piecePosition];
     };
@@ -292,7 +296,7 @@ var monopoly = {
       monopoly.playersArray[toPlayer].cash = monopoly.playersArray[toPlayer].cash + rent;
       monopoly.writeToOutputLog(this.name + ' paid  ' + rent + ' dollars to ' + monopoly.playersArray[monopoly.properties[this.position].owner].name);
       monopoly.writeToOutputLog(this.name + ' now has  ' + this.cash + 'dollars.');
-      monopoly.writeToOutputLog(monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].name + ' now has  ' + monopoly.playersArray[monopoly.properties[monopoly.currentPlayer().position].owner].cash + 'dollars.');
+      monopoly.writeToOutputLog(monopoly.playersArray[monopoly.currentPlayer().currentPropertyOn().owner].name + ' now has  ' + monopoly.playersArray[monopoly.currentPlayer().currentPropertyOn().owner].cash + 'dollars.');
         
     };
     this.buyProperty = function(property){
