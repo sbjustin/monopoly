@@ -19,6 +19,7 @@ var monopoly = {
   startGame:              document.getElementById("start_game"),
   gamePanel:              document.getElementById("game_panel"),
   leftPane:               document.getElementById("left_pane"),
+  middlePane:             document.getElementById("middle_pane"),
   rightPane:              document.getElementById("right_pane"),
   board:                  document.getElementById("board"),
   dice:                   document.getElementById("dice"),
@@ -26,6 +27,7 @@ var monopoly = {
   playerEntryFormList:    document.getElementById("player_entry_form_list"),
   playerEntries:          document.getElementsByName("playername"),
   outputLog:              document.getElementById("output_log"),
+  fullOutputLog:          document.getElementById("full_output_log"),
   nextTurnButton:         document.getElementById("next_turn_button"),
   endGameButton:          document.getElementById("end_game_button"),
   buyPropertyButton:      document.getElementById("buy_property_button"),
@@ -34,7 +36,7 @@ var monopoly = {
   incomeTax200Button:     document.getElementById("income_tax_200_button"),
   propertyPieceBoxes:     document.getElementsByClassName("pieces_box"),
   propertyModal:          document.getElementById("property_modal"),
-  offerTradeButton:             document.getElementById("offer_trade"),
+  offerTradeButton:       document.getElementById("offer_trade"),
   buyHousesButton:        document.getElementById("buy_houses"),
   buyHotelsButton:        document.getElementById("buy_hotels"),
 
@@ -83,17 +85,21 @@ var monopoly = {
     me.defPieces();
     me.defCards();
     
-
-    //remove this stuff for real game
-    // this.playerEntries[0].value = "Justin";
-    // this.playerEntries[1].value = "Cat"
-    ////////////////////////////////////////////
     me.AddPreGameListeners();
     //remove this stuff for real game
-     // monopoly.startGame.click();
-     // this.playersArray[0].buyProperty(monopoly.properties[1])
-     // this.playersArray[0].buyProperty(monopoly.properties[3])
-     // this.playersArray[0].refreshPlayerDisplay();
+    monopoly.addPlayer.click();
+    monopoly.addPlayer.click();
+    this.playerEntries[0].value = "Justin";
+    this.playerEntries[1].value = "Caterine Nash";
+    this.playerEntries[2].value = "Pete";
+    this.playerEntries[3].value = "Lindsay Broderick";
+    ////////////////////////////////////////////
+    
+    //remove this stuff for real game
+     monopoly.startGame.click();
+     this.playersArray[0].buyProperty(monopoly.properties[1])
+     this.playersArray[0].buyProperty(monopoly.properties[3])
+     this.playersArray[0].refreshPlayerDisplay();
     ////////////////////////////////////////////    
 
     
@@ -223,6 +229,7 @@ var monopoly = {
       monopoly.startGame.style.display = 'none';
       monopoly.gamePanel.style.display = 'block';
       monopoly.leftPane.style.display = 'block';
+      monopoly.middlePane.style.display = 'block';
       monopoly.rightPane.style.display = 'block';
       monopoly.board.style.display = 'block';
       monopoly.dice.style.display = 'block';
@@ -288,7 +295,6 @@ var monopoly = {
     monopoly.incomeTax200Button.removeEventListener('click', monopoly.incomeTax200DollarsListener);
     monopoly.incomeTax200Button.style.display = 'none';
     monopoly.incomeTaxPercentButton.style.display = 'none';
-    monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' now has  ' + monopoly.currentPlayer().cash + 'dollars.');
     monopoly.currentPlayer().refreshPlayerDisplay();
     monopoly.nextPlayer();
   },
@@ -308,7 +314,10 @@ var monopoly = {
     var newLI = document.createElement("LI");
     monopoly.outputLog.insertBefore(newLI, monopoly.outputLog.childNodes[0]);
     newLI.innerHTML = notice;
-    if (monopoly.outputLog.childNodes.length > 20){
+    var newLI = document.createElement("LI");
+    monopoly.fullOutputLog.insertBefore(newLI, monopoly.fullOutputLog.childNodes[0]);
+    newLI.innerHTML = notice;
+    if (monopoly.outputLog.childNodes.length > 9){
       monopoly.outputLog.removeChild(monopoly.outputLog.lastChild);
     };
   },
@@ -358,16 +367,12 @@ var monopoly = {
     this.payRent = function(rent, toPlayer){
       this.cash = this.cash - rent;
       toPlayer.cash = toPlayer.cash + rent;
-      monopoly.writeToOutputLog(this.name + ' paid  ' + rent + ' dollars to ' + toPlayer.name);
-      monopoly.writeToOutputLog(this.name + ' now has  ' + this.cash + 'dollars.');
-      monopoly.writeToOutputLog(toPlayer.name + ' now has  ' + toPlayer.cash + 'dollars.');
-        
+      monopoly.writeToOutputLog(this.name + ' paid  ' + rent + ' dollars to ' + toPlayer.name);  
     };
     this.buyProperty = function(property){
       property.status = 'owned';
       property.owner = this;
       this.cash -= property.cost;
-      monopoly.writeToOutputLog(this.name + " now has " + this.cash + "dollars.");
     };
     this.refreshPlayerDisplay = function(){
       var propertyBox = document.getElementById("player" + this.order + "_list");

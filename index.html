@@ -20,8 +20,17 @@
 </div>
 
  
-<div id = 'game_panel'>  
+<div id = 'game_panel'> 
   <div id = 'left_pane'>
+    <div id = 'display_panel'>
+      <ul class = 'player_list border_bottom border_right' id = 'player0_list'>
+      </ul>
+      <ul class = 'player_list border_bottom' id = 'player1_list'>
+      </ul>
+    </div>
+    <ul id = 'output_log'><li></li></ul>
+  </div> 
+  <div id = 'middle_pane'>
     <div id = 'board'>
       
           
@@ -198,10 +207,6 @@
   </div>
   <div id = 'right_pane'>
     <div id = 'display_panel'>
-      <ul class = 'player_list border_bottom border_right' id = 'player0_list'>
-      </ul>
-      <ul class = 'player_list border_bottom' id = 'player1_list'>
-      </ul>
       <ul class = 'player_list border_right' id = 'player2_list'>
       </ul>
       <ul class = 'player_list' id = 'player3_list'>
@@ -228,5 +233,6 @@
 
 </div>
 
-<ul id = 'output_log'><li></li></ul>
+<ul id = 'full_output_log'><li></li></ul>
+
 <script src="monopoly.js"></script>
