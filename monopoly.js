@@ -87,19 +87,19 @@ var monopoly = {
     
     me.AddPreGameListeners();
     //remove this stuff for real game
-    monopoly.addPlayer.click();
-    monopoly.addPlayer.click();
-    this.playerEntries[0].value = "Justin";
-    this.playerEntries[1].value = "Caterine Nash";
-    this.playerEntries[2].value = "Pete";
-    this.playerEntries[3].value = "Lindsay Broderick";
+    // monopoly.addPlayer.click();
+    // monopoly.addPlayer.click();
+    // // this.playerEntries[0].value = "Justin";
+    // this.playerEntries[1].value = "Caterine";
+    // this.playerEntries[2].value = "Pete";
+    // this.playerEntries[3].value = "Lindsay";
     ////////////////////////////////////////////
     
     //remove this stuff for real game
-     monopoly.startGame.click();
-     this.playersArray[0].buyProperty(monopoly.properties[1])
-     this.playersArray[0].buyProperty(monopoly.properties[3])
-     this.playersArray[0].refreshPlayerDisplay();
+     // monopoly.startGame.click();
+     // this.playersArray[0].buyProperty(monopoly.properties[1])
+     // this.playersArray[0].buyProperty(monopoly.properties[3])
+     // this.playersArray[0].refreshPlayerDisplay();
     ////////////////////////////////////////////    
 
     
