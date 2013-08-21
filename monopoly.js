@@ -92,7 +92,7 @@ var monopoly = {
   rollDiceListener: function(){
     monopoly.dice.style.cursor = "default";
     monopoly.diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-    monopoly.diceRoll = 3
+    //monopoly.diceRoll = 3
     monopoly.writeToOutputLog('You rolled a ' + monopoly.diceRoll + '!');
     monopoly.movePiece(monopoly.diceRoll); 
   },
