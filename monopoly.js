@@ -39,19 +39,60 @@ var monopoly = {
   offerTradeButton:       document.getElementById("offer_trade"),
   buyHousesButton:        document.getElementById("buy_houses"),
   buyHotelsButton:        document.getElementById("buy_hotels"),
+  doneBuyingHousesButton: document.getElementById("done_buying_houses"),
+  doneBuyingHotelsButton: document.getElementById("done_buying_hotels"),
 
 
   offerTradeListener: function(){
     alert('test');
   },
 
-  buyHousesListener: function(){
-    alert('test');
+  // addBuyHouseListener: function(){
+  //   monopoly.propertyPieceBoxes[props[i].piecePosition].parentNode.addEventListener("click", monopoly.buyHouseListener);
+  // },
+
+  buyHouseListener: function(){
+    var propId = this.getAttribute("data-id");
+    var property = monopoly.properties[propId];
+    var r = confirm("Buy house for " + property.name + "?");
+    if(r == true){
+      //buy the house
+      monopoly.currentPlayer().buyHouse(property, this);
+    }
+    else{
+      //don't buy the house
+    };
+    
+  },
+
+  doneBuyingHousesButtonListener: function(){
+    monopoly.doneBuyingHousesButton.style.display = "none";
+    monopoly.buyHousesButton.style.display = "block";
+    monopoly.buyHousesButton.addEventListener("click", monopoly.buyHousesButtonListener)
+    var props = monopoly.currentPlayer().propertiesInAMonopoly();
+    for (var i = 0; i < props.length; i++) {
+      props[i].unhighlightProperty();
+      monopoly.propertyPieceBoxes[props[i].piecePosition].parentNode.removeEventListener("click", monopoly.buyHouseListener);
+    };
+  },
+
+  buyHousesButtonListener: function(){
+    monopoly.buyHousesButton.style.display = "none";
+    monopoly.doneBuyingHousesButton.style.display = "block";
+    monopoly.doneBuyingHousesButton.addEventListener("click", monopoly.doneBuyingHousesButtonListener);
+
+    var props = monopoly.currentPlayer().propertiesInAMonopoly();
+    monopoly.buyHousesButton
+    for (var i = 0; i < props.length; i++) {
+      props[i].highlightProperty("brown");
+      monopoly.propertyPieceBoxes[props[i].piecePosition].parentNode.addEventListener("click", monopoly.buyHouseListener);
+    };
   },
 
   rollDiceListener: function(){
     monopoly.dice.style.cursor = "default";
     monopoly.diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
+    monopoly.diceRoll = 3
     monopoly.writeToOutputLog('You rolled a ' + monopoly.diceRoll + '!');
     monopoly.movePiece(monopoly.diceRoll); 
   },
@@ -87,19 +128,34 @@ var monopoly = {
     
     me.AddPreGameListeners();
     //remove this stuff for real game
-    // monopoly.addPlayer.click();
-    // monopoly.addPlayer.click();
-    // // this.playerEntries[0].value = "Justin";
-    // this.playerEntries[1].value = "Caterine";
-    // this.playerEntries[2].value = "Pete";
-    // this.playerEntries[3].value = "Lindsay";
+    monopoly.addPlayer.click();
+    monopoly.addPlayer.click();
+    this.playerEntries[0].value = "Justin";
+    this.playerEntries[1].value = "Catherine";
+    this.playerEntries[2].value = "Pete";
+    this.playerEntries[3].value = "Lindsay";
     ////////////////////////////////////////////
     
     //remove this stuff for real game
-     // monopoly.startGame.click();
-     // this.playersArray[0].buyProperty(monopoly.properties[1])
-     // this.playersArray[0].buyProperty(monopoly.properties[3])
-     // this.playersArray[0].refreshPlayerDisplay();
+     monopoly.startGame.click();
+     //monopoly.board.style.backgroundImage = ""
+     this.playersArray[0].buyProperty(monopoly.properties[1])
+     this.playersArray[0].buyProperty(monopoly.properties[3])
+     this.playersArray[1].buyProperty(monopoly.properties[6])
+     this.playersArray[1].buyProperty(monopoly.properties[11])
+     this.playersArray[1].buyProperty(monopoly.properties[13])
+     this.playersArray[2].buyProperty(monopoly.properties[15])
+     this.playersArray[2].buyProperty(monopoly.properties[25])
+     this.playersArray[3].buyProperty(monopoly.properties[21])
+     this.playersArray[3].buyProperty(monopoly.properties[13])
+     this.playersArray[3].buyProperty(monopoly.properties[31])
+     this.playersArray[0].refreshPlayerDisplay();
+     this.playersArray[1].refreshPlayerDisplay();
+     this.playersArray[2].refreshPlayerDisplay();
+     this.playersArray[3].refreshPlayerDisplay();
+     
+     this.playersTurn = 3;
+     this.nextPlayer(); 
     ////////////////////////////////////////////    
 
     
@@ -147,18 +203,18 @@ var monopoly = {
     };
     monopoly.pieces[monopoly.currentPlayer().piece].addToBoard();
     
-    monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.currentPlayer().currentPosition().name + ".");
     monopoly.onProperty();
   },
 
   //Player has just rolled and landed on a property.
   onProperty: function(){
     if (monopoly.currentPlayer().currentPosition().status == 'available'){
+      monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.currentPlayer().currentPosition().name + ".");
       monopoly.addBuyPropertyListener();
       monopoly.addSkipPropertyListener();
-
       monopoly.writeToOutputLog("Property is available");
     }else if (monopoly.currentPlayer().currentPosition().status == 'owned'){
+      monopoly.writeToOutputLog("Player " + monopoly.currentPlayer().name + " moved to " + monopoly.currentPlayer().currentPosition().name + ".");
       if (monopoly.currentPlayer().currentPosition().group == 'utility'){
         //check to see if both utilities are owned
         if(monopoly.properties[12].owner == monopoly.properties[28].owner){
@@ -180,10 +236,9 @@ var monopoly = {
         monopoly.nextPlayer();
 
       }else{
-        monopoly.currentPlayer().payRent(monopoly.currentPlayer().currentPosition().rent, monopoly.currentPlayer().currentPosition().owner);
-        monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' just landed on a property owned by ' + monopoly.currentPlayer().currentPosition().owner.name);
+        monopoly.ownedProperty();
         monopoly.nextPlayer();
-        };
+      };
     }else if (monopoly.currentPlayer().currentPosition().status == 'mortgaged'){
       monopoly.writeToOutputLog("Property is mortgaged");
       monopoly.nextPlayer();
@@ -195,6 +250,7 @@ var monopoly = {
       monopoly.currentPlayer().jailRollsLeft = 3;
       monopoly.nextPlayer();
     }else if (monopoly.currentPlayer().currentPosition().status == 'jail'){
+      monopoly.writeToOutputLog(monopoly.currentPlayer().name + " is just visiting their delinquent friends in Jail.");
       monopoly.nextPlayer();
     }else if (monopoly.currentPlayer().currentPosition().status == 'chance'){
       monopoly.nextPlayer();
@@ -248,9 +304,9 @@ var monopoly = {
       monopoly.offerTradeButton.style.display = "block";
       monopoly.offerTradeButton.addEventListener("click", monopoly.offerTradeListener);
     };
-    if(monopoly.currentPlayer().monopoliesOwned().length > 0){
+    if(monopoly.currentPlayer().countOfMonopoliesOwned() > 0){
       monopoly.buyHousesButton.style.display = "block";
-      monopoly.buyHousesButton.addEventListener("click", monopoly.buyHousesListener);
+      monopoly.buyHousesButton.addEventListener("click", monopoly.buyHousesButtonListener);
     };
   },
   removeStartTurnListeners: function(){
@@ -260,7 +316,7 @@ var monopoly = {
     monopoly.offerTradeButton.removeEventListener("click", monopoly.offerTradeListener);
   
     monopoly.buyHousesButton.style.display = "none";
-    monopoly.buyHousesButton.removeEventListener("click", monopoly.buyHousesListener);
+    monopoly.buyHousesButton.removeEventListener("click", monopoly.buyHousesButtonListener);
   },
 
   addBuyPropertyListener: function(){
@@ -340,6 +396,34 @@ var monopoly = {
     return indexes;
   },
 
+  ownedProperty: function(){
+    if(monopoly.currentPlayer().currentPosition().owner != monopoly.currentPlayer()){
+      if(monopoly.currentPlayer().currentPosition().numberOfHotels == 1){
+        monopoly.currentPlayer().payRent(monopoly.currentPlayer().currentPosition().rentWith1Hotel, monopoly.currentPlayer().currentPosition().owner);        
+      }
+      else if(monopoly.currentPlayer().currentPosition().numberOfHouses == 1){
+        monopoly.currentPlayer().payRent(monopoly.currentPlayer().currentPosition().rentWith1House, monopoly.currentPlayer().currentPosition().owner);        
+      }
+      else if(monopoly.currentPlayer().currentPosition().numberOfHouses == 2){
+        monopoly.currentPlayer().payRent(monopoly.currentPlayer().currentPosition().rentWith2Houses, monopoly.currentPlayer().currentPosition().owner);        
+      }
+      else if(monopoly.currentPlayer().currentPosition().numberOfHouses == 3){
+        monopoly.currentPlayer().payRent(monopoly.currentPlayer().currentPosition().rentWith3Houses, monopoly.currentPlayer().currentPosition().owner);        
+      } 
+      else if(monopoly.currentPlayer().currentPosition().numberOfHouses == 4){
+        monopoly.currentPlayer().payRent(monopoly.currentPlayer().currentPosition().rentWith4Houses, monopoly.currentPlayer().currentPosition().owner);        
+      } 
+      else{
+        monopoly.currentPlayer().payRent(monopoly.currentPlayer().currentPosition().rent, monopoly.currentPlayer().currentPosition().owner);        
+      }      
+      monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' just landed on a property owned by ' + monopoly.currentPlayer().currentPosition().owner.name);
+    }
+    else{
+      monopoly.writeToOutputLog(monopoly.currentPlayer().name + ' just landed on his own property.');
+    };
+    
+  },
+
   Player: function(name, piece, order){
     //Attributes
     this.name = name;
@@ -350,6 +434,12 @@ var monopoly = {
     this.jailRollsLeft = 0;
     
     //Methods
+    this.haveEnoughMoney = function(dollar){
+      if((this.cash - dollar) < 0){
+        return false;
+      }
+      return true;
+    };
     this.highlightName = function(){
       var playerBox = document.getElementById("player" + this.order + "_list");
       playerBox.childNodes[0].style.border = '3px solid blue';
@@ -369,6 +459,22 @@ var monopoly = {
       toPlayer.cash = toPlayer.cash + rent;
       monopoly.writeToOutputLog(this.name + ' paid  ' + rent + ' dollars to ' + toPlayer.name);  
     };
+    this.buyHouse = function (property, div){
+      if (property.numberOfHouses < 4 && property.numberOfHotels < 1) {
+        this.cash -= property.costOfHouse;
+        this.refreshPlayerDisplay();
+        property.addHouse(div, "house");
+        monopoly.writeToOutputLog(this.name + ' has bought a house on ' + property.name + ' for $' + property.costOfHouse + '.');  
+      }else if(property.numberOfHouses == 4 && property.numberOfHotels == 0){
+        this.cash -= property.costOfHotel;
+        this.refreshPlayerDisplay;
+        property.addHouse(div, "hotel");
+        monopoly.writeToOutputLog(this.name + ' has bought a hotel on ' + property.name + ' for $' + property.costOfHouse + '.');  
+      }
+      else{
+        monopoly.writeToOutputLog(this.name + ', you cannot buy anymore houses for this property.');
+      };
+    };
     this.buyProperty = function(property){
       property.status = 'owned';
       property.owner = this;
@@ -376,7 +482,7 @@ var monopoly = {
     };
     this.refreshPlayerDisplay = function(){
       var propertyBox = document.getElementById("player" + this.order + "_list");
-      temphtml = "<li class = 'player_box_name" + "'> " + monopoly.pieces[this.piece].htmlCode + this.name + " [$" + this.cash + "]</li>"
+      temphtml = "<li class = 'player_box_name" + "'> " + monopoly.pieces[this.piece].htmlCode.replace(/\id = \'.+\'/,"") + this.name + " [$" + this.cash + "]</li>"
       for (var i = 0; i < this.ownedProperties().length; i++) {
         temphtml = temphtml +  "<li id = '" + this.ownedProperties()[i].piecePosition + "' class = 'player_list_" + this.ownedProperties()[i].group + "' onmouseover='monopoly.properties["+this.ownedProperties()[i].order+"].showModal();' onmouseout='monopoly.properties["+this.ownedProperties()[i].order+"].hideModal();'> " + this.ownedProperties()[i].name + "</li>"
       };
@@ -387,21 +493,42 @@ var monopoly = {
     this.ownedProperties = function(){
       return monopoly.findPropertiesByAttr("owner", this, true);
     };
-    this.monopoliesOwned = function(){
-      var monopoliesOwned = [];
-    
+    this.countOfMonopoliesOwned = function(){
+      var count = 0;
       for (var i = 0; i < monopoly.groups.length; i++) {
         var props = monopoly.findPropertiesByAttr("group", monopoly.groups[i], false)
         if(props.length == 2){
-          if(monopoly.properties[props[0]].owner == this && monopoly.properties[props[1]].owner == this){monopoliesOwned.push(monopoly.groups[i]) };
+          if(monopoly.properties[props[0]].owner == this && monopoly.properties[props[1]].owner == this){count += 1; };
         }
         else{//if props.length is 3
-          if(monopoly.properties[props[0]].owner == this && monopoly.properties[props[1]].owner == this && monopoly.properties[props[2]].owner == this){monopoliesOwned.push(monopoly.groups[i]) };
+          if(monopoly.properties[props[0]].owner == this && monopoly.properties[props[1]].owner == this && monopoly.properties[props[2]].owner == this){ count += 1; };
         };
         
       };
 
-      return monopoliesOwned;
+      return count;
+    };
+    this.propertiesInAMonopoly = function(){
+      var propertiesArray = [];
+      for (var i = 0; i < monopoly.groups.length; i++) {
+        var props = monopoly.findPropertiesByAttr("group", monopoly.groups[i], true)
+        if(props.length == 2){
+          if(props[0].owner == this && props[1].owner == this){ 
+            propertiesArray.push(props[0]); 
+            propertiesArray.push(props[1]);
+          };
+        }
+        else{//if props.length is 3
+          if([0].owner == this && props[1].owner == this && props[2].owner == this){ 
+            propertiesArray.push(props[0]); 
+            propertiesArray.push(props[1]);
+            propertiesArray.push(props[2]);
+          };
+        };
+        
+      };
+
+      return propertiesArray;
     };
     this.payIncomeTaxPercentage = function(){
       this.cash -= (this.cash * .1);
@@ -420,13 +547,13 @@ var monopoly = {
     this.rent = rent;
     this.group = group;
     this.order = undefined;
-    this.houseCost = 0;
-    this.hotelCost = 0;
-    this.rentWith1House = this.rent * 5;
-    this.rentWith2Houses = this.rent * 15;
-    this.rentWith3Houses = this.rent * 45;
-    this.rentWith4Houses = this.rent * 80;
-    this.rentWith1Hotel = this.rent * 125;
+    this.costOfHouse = 100;  //TODO: update with correct info
+    this.costOfHotel = 200;  //TODO: update with correct info
+    this.rentWith1House = this.rent * 5;  //TODO: update with correct info
+    this.rentWith2Houses = this.rent * 15;  //TODO: update with correct info
+    this.rentWith3Houses = this.rent * 45;  //TODO: update with correct info
+    this.rentWith4Houses = this.rent * 80;  //TODO: update with correct info
+    this.rentWith1Hotel = this.rent * 125;  //TODO: update with correct info
     this.numberOfHouses = 0;
     this.numberOfHotels = 0;
     this.piecePosition = position;
@@ -437,16 +564,29 @@ var monopoly = {
     };
     
     //Methods
-    this.highlightProperty = function(){
+    this.highlightProperty = function(color){
       monopoly.propertyPieceBoxes[this.piecePosition].parentNode.style.opacity = ".5";
-      monopoly.propertyPieceBoxes[this.piecePosition].parentNode.style.backgroundColor = "yellow";
+      monopoly.propertyPieceBoxes[this.piecePosition].parentNode.style.backgroundColor = color;
     };
     this.unhighlightProperty = function(){
       monopoly.propertyPieceBoxes[this.piecePosition].parentNode.style.opacity = "";
       monopoly.propertyPieceBoxes[this.piecePosition].parentNode.style.backgroundColor = "";
     };
+    this.addHouse = function(div, type){
+      if(type == "hotel"){
+        div.childNodes[1].innerHTML = "";
+        this.numberOfHotels = 1;
+      }else{
+        this.numberOfHouses += 1;
+      };
+      
+      var elem = document.createElement("img");
+      elem.src = "images/"+type+"_piece.png";
+      elem.setAttribute("class",""+type+"_piece");
+      div.childNodes[1].appendChild(elem);
+    };
     this.showModal = function(){
-      this.highlightProperty();
+      this.highlightProperty("yellow");
       if(this.group == 'utility'){
         monopoly.propertyModal.innerHTML = " \
             <div id = 'property_modal_name' style='background-color:lightgray'> \

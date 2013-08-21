@@ -86,6 +86,10 @@
 
 #output_log{
   -webkit-margin-before: 5px;
+  -webkit-margin-after: 0px;
+  -webkit-margin-start: 2px;
+  -webkit-margin-end: 0px;
+  -webkit-padding-start: 0px;
 }
 
 #output_log li {
@@ -215,7 +219,7 @@
 #property_modal{
   background-color: white;
   position: relative;
-  left: 335;
+  margin: auto;
   top: -525px;
   width: 400px;
   height: 400px;
@@ -285,4 +289,15 @@
   font-size: 20px;
 }
 
+.house_piece{
+  width: 13px;
+  height: 13px;
+  float: left;
+}
+
+.hotel_piece{
+  padding: 4px;
+  width: 15px;
+  height: 15px
+}
 
