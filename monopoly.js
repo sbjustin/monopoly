@@ -37,14 +37,44 @@ var monopoly = {
   propertyPieceBoxes:     document.getElementsByClassName("pieces_box"),
   propertyModal:          document.getElementById("property_modal"),
   offerTradeButton:       document.getElementById("offer_trade"),
+  doneTradingButton:      document.getElementById("done_trading"),
   buyHousesButton:        document.getElementById("buy_houses"),
-  buyHotelsButton:        document.getElementById("buy_hotels"),
   doneBuyingHousesButton: document.getElementById("done_buying_houses"),
-  doneBuyingHotelsButton: document.getElementById("done_buying_hotels"),
+  
 
 
   offerTradeListener: function(){
-    alert('test');
+    monopoly.dice.style.cursor = "default";
+    monopoly.dice.removeEventListener("click", monopoly.rollDiceListener);
+    monopoly.offerTradeButton.style.display = "none";
+    monopoly.offerTradeButton.removeEventListener("click", monopoly.offerTradeListener);
+    monopoly.doneTradingButton.style.display = "block";
+    monopoly.doneTradingButton.addEventListener("click", monopoly.doneTradingListender)
+
+    var props = monopoly.findPropertiesByAttr("owner",monopoly.currentPlayer(), true);
+    for (var i = 0; i < props.length; i++) {
+      props[i].highlightPropertyDiv("blue");
+      props[i].div().addEventListener("click", monopoly.tradePropertyListener);
+    };
+  },
+
+  tradePropertyListener: function(){
+    var propId = this.getAttribute("data-id");
+    var property = monopoly.properties[propId];
+    property.highlightPropertyDiv("yellow");
+  },
+
+  doneTradingListender: function(){
+    for (var i = 0; i < monopoly.properties.length; i++) {
+      monopoly.properties[i].unhighlightPropertyDiv();
+      monopoly.properties[i].div().removeEventListener("click", monopoly.tradePropertyListener);
+    };
+    monopoly.dice.style.cursor = "pointer";
+    monopoly.dice.addEventListener("click", monopoly.rollDiceListener);
+    monopoly.doneTradingButton.style.display = "none";
+    monopoly.doneTradingButton.removeEventListener("click", monopoly.doneTradingListender)
+    monopoly.offerTradeButton.style.display = "block";
+    monopoly.offerTradeButton.addEventListener("click", monopoly.offerTradeListener);
   },
 
   // addBuyHouseListener: function(){
@@ -53,11 +83,29 @@ var monopoly = {
 
   buyHouseListener: function(){
     var propId = this.getAttribute("data-id");
+    var div = this.getElementsByClassName("house_box");
     var property = monopoly.properties[propId];
+    var props = monopoly.findPropertiesByAttr("group", property.group, true);
     var r = confirm("Buy house for " + property.name + "?");
     if(r == true){
-      //buy the house
-      monopoly.currentPlayer().buyHouse(property, this.getElementsByClassName("house_box"));
+      if (props.length == 2){
+        if (property.numberOfHouses - props[0].numberOfHouses  >= 1 || property.numberOfHouses - props[1].numberOfHouses  >= 1 ){
+          alert("Must distribute houses evenly!"); 
+        }
+        else{
+          monopoly.currentPlayer().buyHouse(property, this.getElementsByClassName("house_box"));
+        };
+
+      }
+      else{
+        if (property.numberOfHouses - props[0].numberOfHouses  >= 1 || property.numberOfHouses - props[1].numberOfHouses  >= 1 || property.numberOfHouses - props[2].numberOfHouses  >= 1 ){
+          alert("Must distribute houses evenly!"); 
+        }
+        else{
+          monopoly.currentPlayer().buyHouse(property, this.getElementsByClassName("house_box"));
+        };
+      };
+      
     }
     else{
       //don't buy the house
@@ -73,7 +121,7 @@ var monopoly = {
     monopoly.buyHousesButton.addEventListener("click", monopoly.buyHousesButtonListener)
     var props = monopoly.currentPlayer().propertiesInAMonopoly();
     for (var i = 0; i < props.length; i++) {
-      props[i].unhighlightProperty();
+      props[i].unhighlightPropertyDiv();
       monopoly.propertyPieceBoxes[props[i].piecePosition].parentNode.removeEventListener("click", monopoly.buyHouseListener);
     };
   },
@@ -88,7 +136,7 @@ var monopoly = {
     var props = monopoly.currentPlayer().propertiesInAMonopoly();
     monopoly.buyHousesButton
     for (var i = 0; i < props.length; i++) {
-      props[i].highlightProperty("brown");
+      props[i].highlightPropertyDiv("brown");
       monopoly.propertyPieceBoxes[props[i].piecePosition].parentNode.addEventListener("click", monopoly.buyHouseListener);
     };
   },
@@ -383,20 +431,22 @@ var monopoly = {
 
   //Returns: an array of properties or an array of property positions
   //Arguments: Property Attribute, Value of attribute to match, true or false to return property array
-  findPropertiesByAttr: function(attr, value, asProperties){
-    var indexes = [];
+  findPropertiesByAttr: function(attr, value, equalTo){
+    var trueIndexes = [];
+    var falseIndexes = [];
     for (var i = 0; i < monopoly.properties.length; i++) {
       if (monopoly.properties[i][attr] == value){
-        if (asProperties == true){
-          indexes.push(monopoly.properties[i]);
-        }
-        else{
-          indexes.push(i);
-        };
-        
+          trueIndexes.push(monopoly.properties[i]);
+      }
+      else{
+        falseIndexes.push(monopoly.properties[i]);
       };
+        
     };
-    return indexes;
+    if(equalTo == true){
+      return trueIndexes;
+    }
+    return falseIndexes;
   },
 
   ownedProperty: function(){
@@ -499,12 +549,12 @@ var monopoly = {
     this.countOfMonopoliesOwned = function(){
       var count = 0;
       for (var i = 0; i < monopoly.groups.length; i++) {
-        var props = monopoly.findPropertiesByAttr("group", monopoly.groups[i], false)
+        var props = monopoly.findPropertiesByAttr("group", monopoly.groups[i], true)
         if(props.length == 2){
-          if(monopoly.properties[props[0]].owner == this && monopoly.properties[props[1]].owner == this){count += 1; };
+          if(props[0].owner == this && props[1].owner == this){count += 1; };
         }
         else{//if props.length is 3
-          if(monopoly.properties[props[0]].owner == this && monopoly.properties[props[1]].owner == this && monopoly.properties[props[2]].owner == this){ count += 1; };
+          if(props[0].owner == this && props[1].owner == this && props[2].owner == this){ count += 1; };
         };
         
       };
@@ -567,13 +617,19 @@ var monopoly = {
     };
     
     //Methods
-    this.highlightProperty = function(color){
-      monopoly.propertyPieceBoxes[this.piecePosition].parentNode.style.opacity = ".5";
-      monopoly.propertyPieceBoxes[this.piecePosition].parentNode.style.backgroundColor = color;
+    this.sell = function (toPlayer){
+      this.owner = toPlayer;
     };
-    this.unhighlightProperty = function(){
-      monopoly.propertyPieceBoxes[this.piecePosition].parentNode.style.opacity = "";
-      monopoly.propertyPieceBoxes[this.piecePosition].parentNode.style.backgroundColor = "";
+    this.div = function(){
+      return monopoly.propertyPieceBoxes[this.piecePosition].parentNode;
+    };
+    this.highlightPropertyDiv = function(color){
+      this.div().style.opacity = ".5";
+      this.div().style.backgroundColor = color;
+    };
+    this.unhighlightPropertyDiv = function(){
+      this.div().style.opacity = "";
+      this.div().style.backgroundColor = "";
     };
     this.addHouse = function(div, type){
       if(type == "hotel"){
@@ -589,7 +645,7 @@ var monopoly = {
       div[0].appendChild(elem);
     };
     this.showModal = function(){
-      this.highlightProperty("yellow");
+      this.highlightPropertyDiv("yellow");
       if(this.group == 'utility'){
         monopoly.propertyModal.innerHTML = " \
             <div id = 'property_modal_name' style='background-color:lightgray'> \
@@ -665,7 +721,7 @@ var monopoly = {
       monopoly.propertyModal.style.display = 'block';
     };
     this.hideModal = function(){
-      this.unhighlightProperty();
+      this.unhighlightPropertyDiv();
       monopoly.propertyModal.style.display = 'none';
     };
 
@@ -687,13 +743,14 @@ var monopoly = {
     };
   },
 
-  Card: function(description, action){
+  Card: function(description, action, moneyToPlayer){
     this.description = description;
     this.action = action;
+    this.moneyToPlayer = moneyToPlayer;
   },
 
   defCards: function(){
-
+    
   },
 
   defPieces: function(){
