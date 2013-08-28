@@ -10,6 +10,8 @@ var monopoly = {
   pieces: [],
   chanceCards: [],
   communityChestCards: [],
+  whichChanceCard: 0,
+  whichCommunityChestCard: 0,
   freeParkingMoney: 0,
   housesAvailableForPurchase: 32,
   hotelsAvailableForPurchase: 12,
@@ -144,7 +146,7 @@ var monopoly = {
   rollDiceListener: function(){
     monopoly.dice.style.cursor = "default";
     monopoly.diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-    //monopoly.diceRoll = 3
+    monopoly.diceRoll = 7
     monopoly.writeToOutputLog('You rolled a ' + monopoly.diceRoll + '!');
     monopoly.movePiece(monopoly.diceRoll); 
   },
@@ -176,7 +178,8 @@ var monopoly = {
 
     me.defProperties();
     me.defPieces();
-    me.defCards();
+    me.defChanceCards();
+    me.defCommunityChestCards();
     
     me.AddPreGameListeners();
     //remove this stuff for real game
@@ -246,7 +249,7 @@ var monopoly = {
     monopoly.pieces[monopoly.currentPlayer().piece].removeFromBoard();
     //move players postion. Pay 200 dollars if passing go
     if (monopoly.currentPlayer().position + spaces > 39 ){
-      monopoly.currentPlayer().cash += 200;
+      monopoly.currentPlayer().changeCash(200);
       monopoly.currentPlayer().position = spaces - (40 - monopoly.currentPlayer().position);
     }
     else{
@@ -294,7 +297,7 @@ var monopoly = {
       monopoly.writeToOutputLog("Property is mortgaged");
       monopoly.nextPlayer();
     }else if (monopoly.currentPlayer().currentPosition().status == 'go'){
-      monopoly.writeToOutputLog("Property is Go and not available for purchase" );
+      monopoly.writeToOutputLog(monopoly.currentPlayer().name + " landed on Go.");
       monopoly.nextPlayer();
     }else if (monopoly.currentPlayer().currentPosition().status == 'go_to_jail'){
       monopoly.movePiece(-20);
@@ -304,9 +307,17 @@ var monopoly = {
       monopoly.writeToOutputLog(monopoly.currentPlayer().name + " is just visiting their delinquent friends in Jail.");
       monopoly.nextPlayer();
     }else if (monopoly.currentPlayer().currentPosition().status == 'chance'){
-      monopoly.nextPlayer();
+      monopoly.writeToOutputLog("Chance Card: " + monopoly.chanceCards[monopoly.whichChanceCard].description);
+      monopoly.chanceCards[monopoly.whichChanceCard].action();
+      monopoly.whichChanceCard += 1;
+      if (monopoly.whichChanceCard == monopoly.chanceCards.length - 1) {monopoly.whichChanceCard = 0};
+      // monopoly.nextPlayer();
     }else if (monopoly.currentPlayer().currentPosition().status == 'community_chest'){
-      monopoly.nextPlayer();
+      monopoly.writeToOutputLog("Community Chest Card: " + monopoly.communityChestCards[monopoly.whichCommunityChestCard].description);
+      monopoly.communityChestCards[monopoly.whichCommunityChestCard].action();
+      monopoly.whichCommunityChestCard += 1;
+      if (monopoly.whichCommunityChestCard == monopoly.communityChestCards.length - 1) {monopoly.whichCommunityChestCard = 0};
+      // monopoly.nextPlayer();
     }else if (monopoly.currentPlayer().currentPosition().status == 'free_parking'){
       monopoly.nextPlayer();
     }else if (monopoly.currentPlayer().currentPosition().status == 'income_tax'){
@@ -492,6 +503,10 @@ var monopoly = {
         return false;
       }
       return true;
+    };
+    this.changeCash = function(dollars){
+      this.cash += dollars;
+      this.refreshPlayerDisplay();
     };
     this.highlightName = function(){
       var playerBox = document.getElementById("player" + this.order + "_list");
@@ -743,14 +758,118 @@ var monopoly = {
     };
   },
 
-  Card: function(description, action, moneyToPlayer){
+  Card: function(description, action){
     this.description = description;
     this.action = action;
-    this.moneyToPlayer = moneyToPlayer;
+    //TODO: create method called draw card. add methods to all cards and it will call the appropriate method
+    //like if it's change money or move player or whatever so there is less repeated code
   },
 
-  defCards: function(){
+  defChanceCards: function(){
+    monopoly.chanceCards = [];
+    var chanceCards = [];
+
+    //define the chance cards
+    chanceCards.push(new this.Card("Advance to Go (Collect $200)", function(){
+      monopoly.movePiece(40 - monopoly.currentPlayer().position);
+    }));
+    chanceCards.push(new this.Card("Bank error in your favor - collect $75", function(){
+      monopoly.currentPlayer().changeCash(75);
+      monopoly.nextPlayer();
+    }));
+    chanceCards.push(new this.Card("Doctor's fees - Pay $50", function(){
+      monopoly.currentPlayer().changeCash(-50);
+      monopoly.nextPlayer();
+    }));
+    chanceCards.push(new this.Card("Advance to St. Charles Place", function(){
+      var propertyPosition = 11;
+      if (monopoly.currentPlayer().position > propertyPosition) {
+        monopoly.movePiece(40 - monopoly.currentPlayer().position + propertyPosition);  
+      }
+      else{
+        monopoly.movePiece(propertyPosition - monopoly.currentPlayer().position);  
+      };
+    }));
+    chanceCards.push(new this.Card("Bank pays you dividend of $50", function(){
+      monopoly.currentPlayer().changeCash(50);
+      monopoly.nextPlayer();
+    }));
+    chanceCards.push(new this.Card("Go back 3 spaces", function(){
+      monopoly.movePiece(-3);  
+    }));
+    chanceCards.push(new this.Card("Pay poor tax of $15", function(){
+      monopoly.currentPlayer().changeCash(-15);
+      monopoly.nextPlayer();
+    }));
+    chanceCards.push(new this.Card("Take a trip to Reading Railroad", function(){
+      var propertyPosition = 5;
+      if (monopoly.currentPlayer().position > propertyPosition) {
+        monopoly.movePiece(40 - monopoly.currentPlayer().position + propertyPosition);  
+      }
+      else{
+        monopoly.movePiece(propertyPosition - monopoly.currentPlayer().position);  
+      }; 
+    }));
+    chanceCards.push(new this.Card("Take a walk on the Boardwalk", function(){
+      var propertyPosition = 39;
+      if (monopoly.currentPlayer().position > propertyPosition) {
+        monopoly.movePiece(40 - monopoly.currentPlayer().position + propertyPosition);  
+      }
+      else{
+        monopoly.movePiece(propertyPosition - monopoly.currentPlayer().position);  
+      }; 
+    }));
+    chanceCards.push(new this.Card("You have been elected chairman of the board", function(){
+      monopoly.currentPlayer().changeCash(-50 * (monopoly.numberOfPlayers-1));
+      for (var i = 0; i < monopoly.playersArray.length; i++) {
+        if(monopoly.playersArray[i] != monopoly.currentPlayer()){
+          monopoly.playersArray[i].changeCash(50);
+        };
+      };
+      monopoly.nextPlayer();
+    }));
+    chanceCards.push(new this.Card("Your building loan matures – collect $150", function(){
+      monopoly.currentPlayer().changeCash(150);
+      monopoly.nextPlayer();
+    }));
+
     
+
+    //randomize the order of the cards
+    for (var i = chanceCards.length ; i > 0; i--) {
+      var card = Math.floor(Math.random() * i);
+      monopoly.chanceCards.push(chanceCards[card]);
+      chanceCards.splice(card, 1);
+    };
+  },
+
+  defCommunityChestCards: function(){
+    monopoly.communityChestCards = [];
+    var communityChestCards = [];
+
+    //define the community chest cards
+    communityChestCards.push(new this.Card("Advance to Go (Collect $200)", function(){
+      monopoly.movePiece(40 - monopoly.currentPlayer().position);
+    }));
+    communityChestCards.push(new this.Card("Advance to Illinois Ave.", function(){
+      var propertyPosition = 24;
+      if (monopoly.currentPlayer().position > propertyPosition) {
+        monopoly.movePiece(40 - monopoly.currentPlayer().position + propertyPosition);  
+      }
+      else{
+        monopoly.movePiece(propertyPosition - monopoly.currentPlayer().position);  
+      };
+    }));
+    communityChestCards.push(new this.Card("Doctor's fees - Pay $50", function(){
+      monopoly.currentPlayer().changeCash(-50);
+      monopoly.nextPlayer();
+    }));
+    //randomize the order of the cards
+    for (var i = communityChestCards.length ; i > 0; i--) {
+      var card = Math.floor(Math.random() * i);
+      monopoly.communityChestCards.push(communityChestCards[card]);
+      communityChestCards.splice(card, 1);
+    };
   },
 
   defPieces: function(){
