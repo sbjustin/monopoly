@@ -143,13 +143,6 @@ var monopoly = {
     };
   },
 
-  rollDiceListener: function(){
-    monopoly.dice.style.cursor = "default";
-    monopoly.diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-    // monopoly.diceRoll = 7
-    monopoly.writeToOutputLog('You rolled a ' + monopoly.diceRoll + '!');
-    monopoly.movePiece(monopoly.diceRoll); 
-  },
 
   buyPropertyListener: function(){
     monopoly.removePropertyListeners();
@@ -213,6 +206,14 @@ var monopoly = {
     // ////////////////////////////////////////////    
 
     
+  },
+
+  rollDiceListener: function(){
+    monopoly.dice.style.cursor = "default";
+    monopoly.diceRoll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
+    // monopoly.diceRoll = 7
+    monopoly.writeToOutputLog('You rolled a ' + monopoly.diceRoll + '!');
+    monopoly.movePiece(monopoly.diceRoll); 
   },
 
   start: function(){
