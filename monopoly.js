@@ -300,34 +300,33 @@ var monopoly = {
     
     me.AddPreGameListeners();
     //remove this stuff for real game
-    monopoly.addPlayer.click();
-    monopoly.addPlayer.click();
-    this.playerEntries[0].value = "Justin";
-    this.playerEntries[1].value = "Catherine";
-    this.playerEntries[2].value = "Pete";
-    this.playerEntries[3].value = "Lindsay";
+    // monopoly.addPlayer.click();
+    // monopoly.addPlayer.click();
+    // this.playerEntries[0].value = "Justin";
+    // this.playerEntries[1].value = "Catherine";
+    // this.playerEntries[2].value = "Pete";
+    // this.playerEntries[3].value = "Lindsay";
     
-     monopoly.startGame.click();
-     //monopoly.board.style.backgroundImage = ""
-     this.playersArray[0].buyProperty(monopoly.properties[1])
-     this.playersArray[0].buyProperty(monopoly.properties[3])
-     this.playersArray[1].buyProperty(monopoly.properties[6])
-     this.playersArray[1].buyProperty(monopoly.properties[11])
-     this.playersArray[1].buyProperty(monopoly.properties[12])
-     this.playersArray[1].buyProperty(monopoly.properties[13])
-     this.playersArray[1].buyProperty(monopoly.properties[14])
-     this.playersArray[2].buyProperty(monopoly.properties[15])
-     this.playersArray[2].buyProperty(monopoly.properties[19])
-     this.playersArray[2].buyProperty(monopoly.properties[25])
-     this.playersArray[3].buyProperty(monopoly.properties[21])
-     this.playersArray[3].buyProperty(monopoly.properties[31])
-     this.playersArray[0].refreshPlayerDisplay();
-     this.playersArray[1].refreshPlayerDisplay();
-     this.playersArray[2].refreshPlayerDisplay();
-     this.playersArray[3].refreshPlayerDisplay();
+    //  monopoly.startGame.click();
+    //  this.playersArray[0].buyProperty(monopoly.properties[1])
+    //  this.playersArray[0].buyProperty(monopoly.properties[3])
+    //  this.playersArray[1].buyProperty(monopoly.properties[6])
+    //  this.playersArray[1].buyProperty(monopoly.properties[11])
+    //  this.playersArray[1].buyProperty(monopoly.properties[12])
+    //  this.playersArray[1].buyProperty(monopoly.properties[13])
+    //  this.playersArray[1].buyProperty(monopoly.properties[14])
+    //  this.playersArray[2].buyProperty(monopoly.properties[15])
+    //  this.playersArray[2].buyProperty(monopoly.properties[19])
+    //  this.playersArray[2].buyProperty(monopoly.properties[25])
+    //  this.playersArray[3].buyProperty(monopoly.properties[21])
+    //  this.playersArray[3].buyProperty(monopoly.properties[31])
+    //  this.playersArray[0].refreshPlayerDisplay();
+    //  this.playersArray[1].refreshPlayerDisplay();
+    //  this.playersArray[2].refreshPlayerDisplay();
+    //  this.playersArray[3].refreshPlayerDisplay();
      
-     this.playersTurn = 3;
-     this.nextPlayer(); 
+    //  this.playersTurn = 3;
+    //  this.nextPlayer(); 
     // ////////////////////////////////////////////    
 
     
