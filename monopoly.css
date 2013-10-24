@@ -157,6 +157,7 @@
   width: 176px;
   float: left;
 
+
   
   -webkit-margin-before: 0px;
   -webkit-margin-after: 0px;
@@ -164,6 +165,40 @@
   -webkit-margin-end: 0px;
   -webkit-padding-start: 0px;
 }
+
+.trade_list{
+  height: 100%;
+  width: 198px;
+  float: left;
+}
+
+.trade_property{
+  list-style: none;
+  margin:2px;
+  text-align: center;
+}
+
+#trade_modal{
+  background-color: white;
+  position: relative;
+  margin: auto;
+  top: -525px;
+  width: 400px;
+  height: 400px;
+  display: none;
+  z-index: 101;
+  border: 5px solid black;
+}
+
+#trade_modal h1{
+  padding: 10px;
+}
+
+#player_trade_list li{
+  list-style: none;
+}
+
+
 
 .player_list li{
   list-style: none;

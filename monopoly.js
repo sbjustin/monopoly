@@ -15,6 +15,8 @@ var monopoly = {
   freeParkingMoney: 0,
   housesAvailableForPurchase: 32,
   hotelsAvailableForPurchase: 12,
+  tradeCurrentPlayerProperties: [],
+  tradetoPlayerProperties:[],
   groups: ['purple','teal','maroon','orange','red','yellow','green','blue'],
   diceRoll: 0,
   setupGame:              document.getElementById("setup_game"),
@@ -38,8 +40,10 @@ var monopoly = {
   incomeTax200Button:     document.getElementById("income_tax_200_button"),
   propertyPieceBoxes:     document.getElementsByClassName("pieces_box"),
   propertyModal:          document.getElementById("property_modal"),
+  tradeModal:             document.getElementById("trade_modal"),
   offerTradeButton:       document.getElementById("offer_trade"),
   doneTradingButton:      document.getElementById("done_trading"),
+  submitTradeButton:      document.getElementById("submit_trade"),
   buyHousesButton:        document.getElementById("buy_houses"),
   doneBuyingHousesButton: document.getElementById("done_buying_houses"),
   
@@ -52,12 +56,109 @@ var monopoly = {
     monopoly.offerTradeButton.removeEventListener("click", monopoly.offerTradeListener);
     monopoly.doneTradingButton.style.display = "block";
     monopoly.doneTradingButton.addEventListener("click", monopoly.doneTradingListender)
+    monopoly.submitTradeButton.style.display = "block";
+    monopoly.submitTradeButton.addEventListener("click", monopoly.submitTradeListender)
+    monopoly.showTradePlayerListModal();
 
-    var props = monopoly.findPropertiesByAttr("owner",monopoly.currentPlayer(), true);
-    for (var i = 0; i < props.length; i++) {
-      props[i].highlightPropertyDiv("blue");
-      props[i].div().addEventListener("click", monopoly.tradePropertyListener);
+    // var props = monopoly.findPropertiesByAttr("owner",monopoly.currentPlayer(), true);
+    // for (var i = 0; i < props.length; i++) {
+    //   props[i].highlightPropertyDiv("blue");
+    //   props[i].div().addEventListener("click", monopoly.tradePropertyListener);
+    // };
+  },
+
+  showTradePlayerListModal: function(){
+    var playerListLI = ""
+    for (var i = 0; i < monopoly.playersArray.length; i++) {
+      if(monopoly.currentPlayer() != monopoly.playersArray[i]){
+        playerListLI += "<li onclick = 'monopoly.showTradeModal(" + i + ")'>" + monopoly.playersArray[i].name + "</li>";
+      };
     };
+
+    monopoly.tradeModal.innerHTML = " <h1>Who do you want to trade with? \
+    <ul id = 'player_trade_list'>" + playerListLI + "</ul>\
+    ";
+    
+    monopoly.tradeModal.style.display = 'block';
+  },
+
+  addToTrade: function(propertyNumber){
+    property = monopoly.properties[propertyNumber];
+    tempDoc = document.getElementById("trade_" + property.order);
+    
+    if(monopoly.tradeCurrentPlayerProperties.indexOf(property) < 0 && monopoly.tradetoPlayerProperties.indexOf(property) < 0){
+      tempDoc.style.backgroundColor = "yellow";
+      if (property.owner == monopoly.currentPlayer()) {
+        monopoly.tradeCurrentPlayerProperties.push(property);
+      }
+      else{
+        monopoly.tradetoPlayerProperties.push(property);
+      };
+    }
+    else{
+      tempDoc.style.backgroundColor = "white";
+      if (property.owner == monopoly.currentPlayer()) {
+        monopoly.tradeCurrentPlayerProperties.splice(monopoly.tradeCurrentPlayerProperties.indexOf(property),1);
+      }
+      else{
+        monopoly.tradetoPlayerProperties.splice(monopoly.tradetoPlayerProperties.indexOf(property),1);
+      };
+    };
+  },
+
+  showTradeModal: function(withPlayerNumber){
+    monopoly.tradeWithPlayer = monopoly.playersArray[withPlayerNumber];
+    withPlayer = monopoly.playersArray[withPlayerNumber];
+    tempHTML = ""; railroadHTML = ""; utilityHTML = "";
+    for (var i = 0; i < monopoly.currentPlayer().ownedProperties().length; i++) {
+      if(monopoly.currentPlayer().ownedProperties()[i].group == "railroad"){
+        railroadHTML = railroadHTML +  "<li id = 'trade_" + monopoly.currentPlayer().ownedProperties()[i].order + "' class = 'trade_property player_list_" + monopoly.currentPlayer().ownedProperties()[i].group + "' onclick='monopoly.addToTrade("+ monopoly.currentPlayer().ownedProperties()[i].order +")'> " + monopoly.currentPlayer().ownedProperties()[i].name + "</li>"  
+      }
+      else if(monopoly.currentPlayer().ownedProperties()[i].group == "utility")
+      {
+        utilityHTML = utilityHTML +  "<li id = 'trade_" + monopoly.currentPlayer().ownedProperties()[i].order + "' class = 'trade_property player_list_" + monopoly.currentPlayer().ownedProperties()[i].group + "' onclick='monopoly.addToTrade("+ monopoly.currentPlayer().ownedProperties()[i].order +")'> " + monopoly.currentPlayer().ownedProperties()[i].name + "</li>"  
+      }
+      else{
+        tempHTML = tempHTML +  "<li id = 'trade_" + monopoly.currentPlayer().ownedProperties()[i].order + "' class = 'trade_property player_list_" + monopoly.currentPlayer().ownedProperties()[i].group + "' onclick='monopoly.addToTrade("+ monopoly.currentPlayer().ownedProperties()[i].order +")'> " + monopoly.currentPlayer().ownedProperties()[i].name + "</li>"  
+      };
+
+
+    };
+    currentPlayerPropertiesHTML = tempHTML + railroadHTML + utilityHTML;
+
+    tempHTML = ""; railroadHTML = ""; utilityHTML = "";
+    for (var i = 0; i < withPlayer.ownedProperties().length; i++) {
+      if(withPlayer.ownedProperties()[i].group == "railroad"){
+        railroadHTML = railroadHTML +  "<li id = 'trade_" + withPlayer.ownedProperties()[i].order + "' class = 'trade_property player_list_" + withPlayer.ownedProperties()[i].group + "' onclick='monopoly.addToTrade("+ withPlayer.ownedProperties()[i].order +")'> " + withPlayer.ownedProperties()[i].name + "</li>"  
+      }
+      else if(withPlayer.ownedProperties()[i].group == "utility")
+      {
+        utilityHTML = utilityHTML +  "<li id = 'trade_" + withPlayer.ownedProperties()[i].order + "' class = 'trade_property player_list_" + withPlayer.ownedProperties()[i].group + "' onclick='monopoly.addToTrade("+ withPlayer.ownedProperties()[i].order +")'> " + withPlayer.ownedProperties()[i].name + "</li>"  
+      }
+      else{
+        tempHTML = tempHTML +  "<li id = 'trade_" + withPlayer.ownedProperties()[i].order + "' class = 'trade_property player_list_" + withPlayer.ownedProperties()[i].group + "' onclick='monopoly.addToTrade("+ withPlayer.ownedProperties()[i].order +")'> " + withPlayer.ownedProperties()[i].name + "</li>"  
+      };
+
+
+    };
+    withPlayerPropertiesHTML = tempHTML + railroadHTML + utilityHTML;
+
+
+    monopoly.tradeModal.innerHTML = " <div class = 'trade_list border_right'>" + monopoly.currentPlayer().name + currentPlayerPropertiesHTML + "Cash to Offer: <input type='text' id='trade_current_player_cash' name='' class = ''> " + "</div> \
+    <div class = 'trade_list'>" + withPlayer.name + withPlayerPropertiesHTML + "Cash to Demand: <input type='text' id='trade_with_player_cash' name='' class = ''> " + "</div> \
+    ";
+  },
+
+  submitTradeListender:function(){
+    // TODO: cash needs to be int and have enough
+    tradeWithPlayerCash = document.getElementById("trade_with_player_cash").value; 
+    tradeCurrentPlayerCash = document.getElementById("trade_current_player_cash").value; 
+    cashToTrade = tradeCurrentPlayerCash - tradeWithPlayerCash;
+    monopoly.executeTrade(monopoly.tradeCurrentPlayerProperties , monopoly.tradeWithPlayer, monopoly.tradetoPlayerProperties, cashToTrade);
+    monopoly.currentPlayer().refreshPlayerDisplay;
+    monopoly.tradeWithPlayer.refreshPlayerDisplay;
+
+    monopoly.doneTradingButton.click();
   },
 
   tradePropertyListener: function(){
@@ -75,8 +176,31 @@ var monopoly = {
     monopoly.dice.addEventListener("click", monopoly.rollDiceListener);
     monopoly.doneTradingButton.style.display = "none";
     monopoly.doneTradingButton.removeEventListener("click", monopoly.doneTradingListender)
+    monopoly.submitTradeButton.style.display = "none";
+    monopoly.submitTradeButton.removeEventListener("click", monopoly.submitTradeListender)
     monopoly.offerTradeButton.style.display = "block";
     monopoly.offerTradeButton.addEventListener("click", monopoly.offerTradeListener);
+    monopoly.tradeModal.style.display = "none";
+
+    monopoly.tradeCurrentPlayerProperties = [];
+    monopoly.tradetoPlayerProperties = [];
+  },
+
+  executeTrade: function(currentPlayerPropertiesToTrade, toPlayer, toPlayerPropertiesToTrade, toPlayerCash){
+    // currentPlayerPropertiesToTrade - Player's prorerties to offer for trade
+    // toPlayer - Player you are trading with
+    // toPlayerPropertiesToTrade - Properties demanding in trade
+    // toPlayerCash - Cash being offered in trade (Positive if offering, negative if demanding)
+    // monopoly.executeTrade([monopoly.currentPlayer().ownedProperties()[0]] , monopoly.playersArray[1], [monopoly.playersArray[1].ownedProperties()[0]], 200)
+    for (var i = 0; i < currentPlayerPropertiesToTrade.length; i++) {
+      currentPlayerPropertiesToTrade[i].sell(toPlayer);
+    };
+    for (var i = 0; i < toPlayerPropertiesToTrade.length; i++) {
+      toPlayerPropertiesToTrade[i].sell(monopoly.currentPlayer());
+    };
+    monopoly.currentPlayer().changeCash(0 - toPlayerCash);
+    toPlayer.changeCash(toPlayerCash);
+
   },
 
   // addBuyHouseListener: function(){
@@ -176,33 +300,34 @@ var monopoly = {
     
     me.AddPreGameListeners();
     //remove this stuff for real game
-    // monopoly.addPlayer.click();
-    // monopoly.addPlayer.click();
-    // this.playerEntries[0].value = "Justin";
-    // this.playerEntries[1].value = "Catherine";
-    // this.playerEntries[2].value = "Pete";
-    // this.playerEntries[3].value = "Lindsay";
+    monopoly.addPlayer.click();
+    monopoly.addPlayer.click();
+    this.playerEntries[0].value = "Justin";
+    this.playerEntries[1].value = "Catherine";
+    this.playerEntries[2].value = "Pete";
+    this.playerEntries[3].value = "Lindsay";
     
-    //  monopoly.startGame.click();
-    //  //monopoly.board.style.backgroundImage = ""
-    //  this.playersArray[0].buyProperty(monopoly.properties[1])
-    //  this.playersArray[0].buyProperty(monopoly.properties[3])
-    //  this.playersArray[1].buyProperty(monopoly.properties[6])
-    //  this.playersArray[1].buyProperty(monopoly.properties[11])
-    //  this.playersArray[1].buyProperty(monopoly.properties[12])
-    //  this.playersArray[1].buyProperty(monopoly.properties[13])
-    //  this.playersArray[1].buyProperty(monopoly.properties[14])
-    //  this.playersArray[2].buyProperty(monopoly.properties[15])
-    //  this.playersArray[2].buyProperty(monopoly.properties[25])
-    //  this.playersArray[3].buyProperty(monopoly.properties[21])
-    //  this.playersArray[3].buyProperty(monopoly.properties[31])
-    //  this.playersArray[0].refreshPlayerDisplay();
-    //  this.playersArray[1].refreshPlayerDisplay();
-    //  this.playersArray[2].refreshPlayerDisplay();
-    //  this.playersArray[3].refreshPlayerDisplay();
+     monopoly.startGame.click();
+     //monopoly.board.style.backgroundImage = ""
+     this.playersArray[0].buyProperty(monopoly.properties[1])
+     this.playersArray[0].buyProperty(monopoly.properties[3])
+     this.playersArray[1].buyProperty(monopoly.properties[6])
+     this.playersArray[1].buyProperty(monopoly.properties[11])
+     this.playersArray[1].buyProperty(monopoly.properties[12])
+     this.playersArray[1].buyProperty(monopoly.properties[13])
+     this.playersArray[1].buyProperty(monopoly.properties[14])
+     this.playersArray[2].buyProperty(monopoly.properties[15])
+     this.playersArray[2].buyProperty(monopoly.properties[19])
+     this.playersArray[2].buyProperty(monopoly.properties[25])
+     this.playersArray[3].buyProperty(monopoly.properties[21])
+     this.playersArray[3].buyProperty(monopoly.properties[31])
+     this.playersArray[0].refreshPlayerDisplay();
+     this.playersArray[1].refreshPlayerDisplay();
+     this.playersArray[2].refreshPlayerDisplay();
+     this.playersArray[3].refreshPlayerDisplay();
      
-    //  this.playersTurn = 3;
-    //  this.nextPlayer(); 
+     this.playersTurn = 3;
+     this.nextPlayer(); 
     // ////////////////////////////////////////////    
 
     
@@ -325,6 +450,7 @@ var monopoly = {
       monopoly.addIncomeTaxPercentageListener();
       monopoly.addIncomeTax200DollarsListener();
     }else if (monopoly.currentPlayer().currentPosition().status == 'luxury_tax'){
+      monopoly.changeCash(-75);
       monopoly.nextPlayer();
     }else{
       monopoly.writeToOutputLog("Property is not available for purchase" );
@@ -506,8 +632,15 @@ var monopoly = {
       return true;
     };
     this.changeCash = function(dollars){
-      this.cash += dollars;
-      this.refreshPlayerDisplay();
+      if (this.haveEnoughMoney(dollars)) {
+        this.cash += dollars;
+        this.cash = Math.floor(this.cash);
+        this.refreshPlayerDisplay();
+        return true;
+      }else{
+        monopoly.writeToOutputLog(this.name + " does not have enough money to do that.")
+        return false;
+      };
     };
     this.highlightName = function(){
       var playerBox = document.getElementById("player" + this.order + "_list");
@@ -524,19 +657,17 @@ var monopoly = {
       return monopoly.propertyPieceBoxes[monopoly.properties[this.position].piecePosition];
     };
     this.payRent = function(rent, toPlayer){
-      this.cash = this.cash - rent;
-      toPlayer.cash = toPlayer.cash + rent;
+      this.changeCash(0 - rent);
+      toPlayer.changeCash(0 + rent);
       monopoly.writeToOutputLog(this.name + ' paid  ' + rent + ' dollars to ' + toPlayer.name);  
     };
     this.buyHouse = function (property, div){
       if (property.numberOfHouses < 4 && property.numberOfHotels < 1) {
-        this.cash -= property.costOfHouse;
-        this.refreshPlayerDisplay();
+        this.changeCash(0 - property.costOfHouse);
         property.addHouse(div, "house");
         monopoly.writeToOutputLog(this.name + ' has bought a house on ' + property.name + ' for $' + property.costOfHouse + '.');  
       }else if(property.numberOfHouses == 4 && property.numberOfHotels == 0){
-        this.cash -= property.costOfHotel;
-        this.refreshPlayerDisplay;
+        this.changeCash(0 - property.costOfHotel);
         property.addHouse(div, "hotel");
         monopoly.writeToOutputLog(this.name + ' has bought a hotel on ' + property.name + ' for $' + property.costOfHouse + '.');  
       }
@@ -547,16 +678,29 @@ var monopoly = {
     this.buyProperty = function(property){
       property.status = 'owned';
       property.owner = this;
-      this.cash -= property.cost;
+      this.changeCash(0 - property.cost);
     };
     this.refreshPlayerDisplay = function(){
       var propertyBox = document.getElementById("player" + this.order + "_list");
-      temphtml = "<li class = 'player_box_name" + "'> " + monopoly.pieces[this.piece].htmlCode.replace(/\id = \'.+\'/,"") + this.name + " [$" + this.cash + "]</li>"
+      var tempHTML = "<li class = 'player_box_name" + "'> " + monopoly.pieces[this.piece].htmlCode.replace(/\id = \'.+\'/,"") + this.name + " [$" + this.cash + "]</li>"
+      var railroadHTML = ""
+      var utilityHTML = ""
       for (var i = 0; i < this.ownedProperties().length; i++) {
-        temphtml = temphtml +  "<li id = '" + this.ownedProperties()[i].piecePosition + "' class = 'player_list_" + this.ownedProperties()[i].group + "' onmouseover='monopoly.properties["+this.ownedProperties()[i].order+"].showModal();' onmouseout='monopoly.properties["+this.ownedProperties()[i].order+"].hideModal();'> " + this.ownedProperties()[i].name + "</li>"
+        if(this.ownedProperties()[i].group == "railroad"){
+          railroadHTML = railroadHTML +  "<li id = '" + this.ownedProperties()[i].piecePosition + "' class = 'player_list_" + this.ownedProperties()[i].group + "' onmouseover='monopoly.properties["+this.ownedProperties()[i].order+"].showModal();' onmouseout='monopoly.properties["+this.ownedProperties()[i].order+"].hideModal();'> " + this.ownedProperties()[i].name + "</li>"  
+        }
+        else if(this.ownedProperties()[i].group == "utility")
+        {
+          utilityHTML = utilityHTML +  "<li id = '" + this.ownedProperties()[i].piecePosition + "' class = 'player_list_" + this.ownedProperties()[i].group + "' onmouseover='monopoly.properties["+this.ownedProperties()[i].order+"].showModal();' onmouseout='monopoly.properties["+this.ownedProperties()[i].order+"].hideModal();'> " + this.ownedProperties()[i].name + "</li>"  
+        }
+        else{
+          tempHTML = tempHTML +  "<li id = '" + this.ownedProperties()[i].piecePosition + "' class = 'player_list_" + this.ownedProperties()[i].group + "' onmouseover='monopoly.properties["+this.ownedProperties()[i].order+"].showModal();' onmouseout='monopoly.properties["+this.ownedProperties()[i].order+"].hideModal();'> " + this.ownedProperties()[i].name + "</li>"  
+        }
+        
       };
-      propertyBox.innerHTML = temphtml;
-      //needs to be applied at end after temphtml has been applied
+      tempHTML = tempHTML + railroadHTML + utilityHTML;
+      propertyBox.innerHTML = tempHTML;
+      //needs to be applied at end after tempHTML has been applied
       if(monopoly.currentPlayer() == this){this.highlightName();};
     };
     this.ownedProperties = function(){
@@ -600,10 +744,10 @@ var monopoly = {
       return propertiesArray;
     };
     this.payIncomeTaxPercentage = function(){
-      this.cash -= (this.cash * .1);
+      this.changeCash(- Math.floor(this.cash * .1));
     };
     this.payIncomeTax200Dollars = function(){
-      this.cash -= 200;
+      this.changeCash(- 200);
     };
 
   },
